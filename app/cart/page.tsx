@@ -56,7 +56,7 @@ export default async function CartPage() {
                 className="flex items-start gap-4 rounded-lg border p-4"
               >
                 <div className="relative h-24 w-24 overflow-hidden rounded-md">
-                  <Image
+                  <img
                     src={item.product.images[0] || "/placeholder.svg"}
                     alt={item.product.name}
                     fill

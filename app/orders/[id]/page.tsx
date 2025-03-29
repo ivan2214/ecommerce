@@ -70,7 +70,7 @@ export default async function OrderDetailsPage({
                     className="flex items-start gap-4 rounded-lg border p-4"
                   >
                     <div className="relative h-20 w-20 overflow-hidden rounded-md">
-                      <Image
+                      <img
                         src={item.product.images[0] || "/placeholder.svg"}
                         alt={item.product.name}
                         fill

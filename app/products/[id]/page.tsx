@@ -83,7 +83,7 @@ export default async function ProductPage({
         {/* Product Images */}
         <div className="space-y-4">
           <div className="relative aspect-square overflow-hidden rounded-lg border">
-            <Image
+            <img
               src={product.images[0] || "/placeholder.svg"}
               alt={product.name}
               fill
@@ -97,7 +97,7 @@ export default async function ProductPage({
                 key={index}
                 className="relative aspect-square overflow-hidden rounded-md border"
               >
-                <Image
+                <img
                   src={image || "/placeholder.svg"}
                   alt={`${product.name} - Image ${index + 1}`}
                   fill
@@ -244,7 +244,7 @@ export default async function ProductPage({
                               {review.user.name.charAt(0)}
                             </span>
                           ) : (
-                            <Image
+                            <img
                               src="/placeholder-user.jpg"
                               alt="User"
                               fill
@@ -297,7 +297,7 @@ export default async function ProductPage({
             >
               <Card className="h-full overflow-hidden group">
                 <div className="relative h-[200px] w-full overflow-hidden">
-                  <Image
+                  <img
                     src={relatedProduct.images[0] || "/placeholder.svg"}
                     alt={relatedProduct.name}
                     fill

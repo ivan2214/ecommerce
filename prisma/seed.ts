@@ -150,20 +150,31 @@ async function main() {
     createdCategories.flatMap((category) =>
       Array.from({ length: faker.number.int({ min: 5, max: 15 }) }).map(() => {
         const name = faker.commerce.productName();
-        const price = Number.parseFloat(
+        const originalPrice = Number.parseFloat(
           faker.commerce.price({ min: 10, max: 2000 })
         );
         const stock = faker.number.int({ min: 0, max: 100 });
+        const hasDiscount = faker.datatype.boolean({ probability: 0.5 });
+        const discount = hasDiscount
+          ? faker.number.int({ min: 5, max: 50 })
+          : 0;
+        const price = hasDiscount
+          ? originalPrice - (originalPrice * discount) / 100
+          : originalPrice;
+        const featured = faker.datatype.boolean({ probability: 0.2 });
 
         return prisma.product.create({
           data: {
             name,
             slug: faker.helpers.slugify(name).toLowerCase(),
             description: faker.commerce.productDescription(),
+            originalPrice,
             price,
+            discount,
+
             stock,
             categoryId: category.id,
-            featured: faker.datatype.boolean({ probability: 0.2 }),
+            featured,
             images: Array.from({
               length: faker.number.int({ min: 1, max: 5 }),
             }).map(() =>
@@ -181,21 +192,40 @@ async function main() {
 
   // Create reviews for products
   console.log("Creating reviews...");
-  await Promise.all(
-    products.flatMap((product) =>
-      Array.from({ length: faker.number.int({ min: 0, max: 10 }) }).map(() => {
-        const user = faker.helpers.arrayElement(regularUsers);
 
-        return prisma.review.create({
-          data: {
-            userId: user.id,
-            productId: product.id,
-            rating: faker.number.int({ min: 1, max: 5 }),
-            comment: faker.lorem.paragraph(),
-          },
-        });
-      })
-    )
+  const reviewsSet = new Set<string>(); // Set para rastrear userId-productId únicos
+
+  await Promise.all(
+    products.flatMap((product) => {
+      const availableUsers = [...regularUsers]; // Copia de los usuarios disponibles
+
+      return Array.from({ length: faker.number.int({ min: 0, max: 10 }) }).map(
+        async () => {
+          if (availableUsers.length === 0) return; // Si no hay más usuarios disponibles, salir
+
+          const userIndex = faker.number.int({
+            min: 0,
+            max: availableUsers.length - 1,
+          });
+          const user = availableUsers.splice(userIndex, 1)[0]; // Sacamos un usuario sin repetir
+
+          const reviewKey = `${user.id}-${product.id}`; // Clave única para verificar duplicados
+
+          if (reviewsSet.has(reviewKey)) return; // Si ya existe, salir
+
+          reviewsSet.add(reviewKey); // Agregar la combinación al set
+
+          return prisma.review.create({
+            data: {
+              userId: user.id,
+              productId: product.id,
+              rating: faker.number.int({ min: 1, max: 5 }),
+              comment: faker.lorem.paragraph(),
+            },
+          });
+        }
+      );
+    })
   );
 
   // Create favorites

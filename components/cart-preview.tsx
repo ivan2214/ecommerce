@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
-import Image from "next/image"
-import Link from "next/link"
-import { Minus, Plus, Trash2 } from "lucide-react"
+import Image from "next/image";
+import Link from "next/link";
+import { Minus, Plus, Trash2 } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 
 type CartPreviewProps = {
-  onCheckout: () => void
-}
+  onCheckout: () => void;
+};
 
 export default function CartPreview({ onCheckout }: CartPreviewProps) {
   // This would normally come from a cart context or server action
@@ -28,17 +28,22 @@ export default function CartPreview({ onCheckout }: CartPreviewProps) {
       quantity: 2,
       image: "/images/products/techphone-1.jpg",
     },
-  ]
+  ];
 
-  const subtotal = cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
-  const shipping = 10.0
-  const total = subtotal + shipping
+  const subtotal = cartItems.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0
+  );
+  const shipping = 10.0;
+  const total = subtotal + shipping;
 
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between py-4">
         <h2 className="text-lg font-semibold">Shopping Cart</h2>
-        <p className="text-sm text-muted-foreground">{cartItems.length} items</p>
+        <p className="text-sm text-muted-foreground">
+          {cartItems.length} items
+        </p>
       </div>
       <Separator />
       {cartItems.length > 0 ? (
@@ -48,11 +53,18 @@ export default function CartPreview({ onCheckout }: CartPreviewProps) {
               {cartItems.map((item) => (
                 <li key={item.id} className="flex items-center space-x-3">
                   <div className="relative h-16 w-16 overflow-hidden rounded-md border">
-                    <Image src={item.image || "/placeholder.svg"} alt={item.name} fill className="object-cover" />
+                    <img
+                      src={item.image || "/placeholder.svg"}
+                      alt={item.name}
+                      fill
+                      className="object-cover"
+                    />
                   </div>
                   <div className="flex-1 space-y-1">
                     <h3 className="font-medium">{item.name}</h3>
-                    <p className="text-sm text-muted-foreground">${item.price.toFixed(2)}</p>
+                    <p className="text-sm text-muted-foreground">
+                      ${item.price.toFixed(2)}
+                    </p>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Button variant="outline" size="icon" className="h-7 w-7">
@@ -64,7 +76,11 @@ export default function CartPreview({ onCheckout }: CartPreviewProps) {
                       <Plus className="h-3 w-3" />
                       <span className="sr-only">Increase quantity</span>
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-destructive"
+                    >
                       <Trash2 className="h-4 w-4" />
                       <span className="sr-only">Remove item</span>
                     </Button>
@@ -107,6 +123,5 @@ export default function CartPreview({ onCheckout }: CartPreviewProps) {
         </div>
       )}
     </div>
-  )
+  );
 }
-

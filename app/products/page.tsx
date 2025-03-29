@@ -1,16 +1,27 @@
-import Link from "next/link"
-import Image from "next/image"
-import { Star } from "lucide-react"
+import Link from "next/link";
+import Image from "next/image";
+import { Star } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export default function ProductsPage() {
   // This would normally come from a database query
@@ -18,7 +29,8 @@ export default function ProductsPage() {
     {
       id: "1",
       name: "UltraPhone Pro",
-      description: "The latest smartphone with advanced features and long battery life.",
+      description:
+        "The latest smartphone with advanced features and long battery life.",
       price: 999.99,
       image: "/images/products/ultraphone-1.jpg",
       category: "Smartphones",
@@ -40,7 +52,8 @@ export default function ProductsPage() {
     {
       id: "3",
       name: "TechPhone Lite",
-      description: "Affordable smartphone with great performance and camera quality.",
+      description:
+        "Affordable smartphone with great performance and camera quality.",
       price: 499.99,
       originalPrice: 549.99,
       image: "/images/products/techphone-1.jpg",
@@ -52,7 +65,8 @@ export default function ProductsPage() {
     {
       id: "4",
       name: "SmartWatch X",
-      description: "Track your fitness and stay connected with this stylish smartwatch.",
+      description:
+        "Track your fitness and stay connected with this stylish smartwatch.",
       price: 299.99,
       image: "/images/products/smartwatch-1.jpg",
       category: "Wearables",
@@ -73,14 +87,15 @@ export default function ProductsPage() {
     {
       id: "6",
       name: "Gaming Console X",
-      description: "Next-generation gaming with stunning graphics and fast performance.",
+      description:
+        "Next-generation gaming with stunning graphics and fast performance.",
       price: 499.99,
       image: "/images/products/console-1.jpg",
       category: "Gaming",
       rating: 4.9,
       reviews: 76,
     },
-  ]
+  ];
 
   const categories = [
     { id: "1", name: "Smartphones", count: 12 },
@@ -88,7 +103,7 @@ export default function ProductsPage() {
     { id: "3", name: "Wearables", count: 6 },
     { id: "4", name: "Audio", count: 10 },
     { id: "5", name: "Gaming", count: 7 },
-  ]
+  ];
 
   const brands = [
     { id: "1", name: "TechBrand", count: 15 },
@@ -96,7 +111,7 @@ export default function ProductsPage() {
     { id: "3", name: "PowerTech", count: 8 },
     { id: "4", name: "SmartLife", count: 6 },
     { id: "5", name: "GamerX", count: 4 },
-  ]
+  ];
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -113,13 +128,19 @@ export default function ProductsPage() {
               </div>
             </div>
             <Separator />
-            <Accordion type="multiple" defaultValue={["categories", "price", "brands"]}>
+            <Accordion
+              type="multiple"
+              defaultValue={["categories", "price", "brands"]}
+            >
               <AccordionItem value="categories">
                 <AccordionTrigger>Categories</AccordionTrigger>
                 <AccordionContent>
                   <div className="space-y-2">
                     {categories.map((category) => (
-                      <div key={category.id} className="flex items-center space-x-2">
+                      <div
+                        key={category.id}
+                        className="flex items-center space-x-2"
+                      >
                         <Checkbox id={`category-${category.id}`} />
                         <Label
                           htmlFor={`category-${category.id}`}
@@ -143,7 +164,11 @@ export default function ProductsPage() {
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="max-price">Max</Label>
-                        <Input id="max-price" type="number" placeholder="1000" />
+                        <Input
+                          id="max-price"
+                          type="number"
+                          placeholder="1000"
+                        />
                       </div>
                     </div>
                     <Button variant="outline" size="sm" className="w-full">
@@ -157,9 +182,15 @@ export default function ProductsPage() {
                 <AccordionContent>
                   <div className="space-y-2">
                     {brands.map((brand) => (
-                      <div key={brand.id} className="flex items-center space-x-2">
+                      <div
+                        key={brand.id}
+                        className="flex items-center space-x-2"
+                      >
                         <Checkbox id={`brand-${brand.id}`} />
-                        <Label htmlFor={`brand-${brand.id}`} className="flex-1 text-sm font-normal cursor-pointer">
+                        <Label
+                          htmlFor={`brand-${brand.id}`}
+                          className="flex-1 text-sm font-normal cursor-pointer"
+                        >
                           {brand.name} ({brand.count})
                         </Label>
                       </div>
@@ -179,10 +210,16 @@ export default function ProductsPage() {
                           className="flex-1 text-sm font-normal cursor-pointer flex items-center"
                         >
                           {Array.from({ length: rating }).map((_, i) => (
-                            <Star key={i} className="h-4 w-4 fill-primary text-primary" />
+                            <Star
+                              key={i}
+                              className="h-4 w-4 fill-primary text-primary"
+                            />
                           ))}
                           {Array.from({ length: 5 - rating }).map((_, i) => (
-                            <Star key={i} className="h-4 w-4 text-muted-foreground" />
+                            <Star
+                              key={i}
+                              className="h-4 w-4 text-muted-foreground"
+                            />
                           ))}
                           <span className="ml-1">& Up</span>
                         </Label>
@@ -197,13 +234,19 @@ export default function ProductsPage() {
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
                       <Checkbox id="in-stock" />
-                      <Label htmlFor="in-stock" className="text-sm font-normal cursor-pointer">
+                      <Label
+                        htmlFor="in-stock"
+                        className="text-sm font-normal cursor-pointer"
+                      >
                         In Stock
                       </Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Checkbox id="on-sale" />
-                      <Label htmlFor="on-sale" className="text-sm font-normal cursor-pointer">
+                      <Label
+                        htmlFor="on-sale"
+                        className="text-sm font-normal cursor-pointer"
+                      >
                         On Sale
                       </Label>
                     </div>
@@ -222,7 +265,9 @@ export default function ProductsPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h1 className="text-2xl font-bold">All Products</h1>
-                <p className="text-muted-foreground">Showing {products.length} products</p>
+                <p className="text-muted-foreground">
+                  Showing {products.length} products
+                </p>
               </div>
               <div className="flex items-center space-x-2">
                 <Select defaultValue="featured">
@@ -231,8 +276,12 @@ export default function ProductsPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="featured">Featured</SelectItem>
-                    <SelectItem value="price-low">Price: Low to High</SelectItem>
-                    <SelectItem value="price-high">Price: High to Low</SelectItem>
+                    <SelectItem value="price-low">
+                      Price: Low to High
+                    </SelectItem>
+                    <SelectItem value="price-high">
+                      Price: High to Low
+                    </SelectItem>
                     <SelectItem value="newest">Newest</SelectItem>
                     <SelectItem value="rating">Rating</SelectItem>
                   </SelectContent>
@@ -245,24 +294,32 @@ export default function ProductsPage() {
                 <Link key={product.id} href={`/products/${product.id}`}>
                   <Card className="h-full overflow-hidden group">
                     <div className="relative h-[200px] w-full overflow-hidden">
-                      <Image
+                      <img
                         src={product.image || "/placeholder.svg"}
                         alt={product.name}
                         fill
                         className="object-cover transition-transform group-hover:scale-105"
                       />
                       {product.originalPrice && (
-                        <Badge className="absolute top-2 right-2 bg-red-500 hover:bg-red-600">Sale</Badge>
+                        <Badge className="absolute top-2 right-2 bg-red-500 hover:bg-red-600">
+                          Sale
+                        </Badge>
                       )}
                     </div>
                     <CardContent className="p-4">
                       <div className="space-y-2">
-                        <p className="text-sm text-muted-foreground">{product.category}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {product.category}
+                        </p>
                         <h3 className="font-semibold">{product.name}</h3>
                         <div className="flex items-center space-x-1">
                           <Star className="h-4 w-4 fill-primary text-primary" />
-                          <span className="text-sm font-medium">{product.rating}</span>
-                          <span className="text-sm text-muted-foreground">({product.reviews})</span>
+                          <span className="text-sm font-medium">
+                            {product.rating}
+                          </span>
+                          <span className="text-sm text-muted-foreground">
+                            ({product.reviews})
+                          </span>
                         </div>
                       </div>
                     </CardContent>
@@ -270,13 +327,17 @@ export default function ProductsPage() {
                       <div className="flex items-center">
                         {product.originalPrice ? (
                           <>
-                            <p className="font-semibold">${product.price.toFixed(2)}</p>
+                            <p className="font-semibold">
+                              ${product.price.toFixed(2)}
+                            </p>
                             <p className="text-sm text-muted-foreground line-through ml-2">
                               ${product.originalPrice.toFixed(2)}
                             </p>
                           </>
                         ) : (
-                          <p className="font-semibold">${product.price.toFixed(2)}</p>
+                          <p className="font-semibold">
+                            ${product.price.toFixed(2)}
+                          </p>
                         )}
                       </div>
                     </CardFooter>
@@ -304,7 +365,12 @@ export default function ProductsPage() {
                     <path d="m15 18-6-6 6-6" />
                   </svg>
                 </Button>
-                <Button variant="outline" size="sm" className="h-8 w-8" disabled>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 w-8"
+                  disabled
+                >
                   1
                 </Button>
                 <Button variant="outline" size="sm" className="h-8 w-8">
@@ -336,6 +402,5 @@ export default function ProductsPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
-

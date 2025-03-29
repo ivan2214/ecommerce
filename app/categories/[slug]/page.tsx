@@ -62,7 +62,7 @@ export default async function CategoryPage({
               <Link key={product.id} href={`/products/${product.id}`}>
                 <Card className="h-full overflow-hidden group">
                   <div className="relative h-[200px] w-full overflow-hidden">
-                    <Image
+                    <img
                       src={product.images[0] || "/placeholder.svg"}
                       alt={product.name}
                       fill

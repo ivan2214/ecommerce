@@ -24,7 +24,7 @@ export default async function CategoriesPage() {
           <Link key={category.id} href={`/categories/${category.slug}`}>
             <div className="group relative overflow-hidden rounded-lg border h-[200px]">
               <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors z-10" />
-              <Image
+              <img
                 src={category.image || "/placeholder.svg"}
                 alt={category.name}
                 fill

@@ -1,12 +1,27 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { ChevronDown, Download, Edit, MoreHorizontal, Plus, Search, Trash2, Upload } from "lucide-react"
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import {
+  ChevronDown,
+  Download,
+  Edit,
+  MoreHorizontal,
+  Plus,
+  Search,
+  Trash2,
+  Upload,
+} from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,11 +29,24 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 
 export default function ProductsPage() {
   // This would normally come from a database query
@@ -123,27 +151,29 @@ export default function ProductsPage() {
       featured: false,
       image: "/images/products/charger-1.jpg",
     },
-  ]
+  ];
 
-  const [products, setProducts] = useState(initialProducts)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [categoryFilter, setCategoryFilter] = useState("all")
-  const [statusFilter, setStatusFilter] = useState("all")
+  const [products, setProducts] = useState(initialProducts);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch =
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.category.toLowerCase().includes(searchTerm.toLowerCase())
+      product.category.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesCategory = categoryFilter === "all" || product.category === categoryFilter
+    const matchesCategory =
+      categoryFilter === "all" || product.category === categoryFilter;
 
-    const matchesStatus = statusFilter === "all" || product.status === statusFilter
+    const matchesStatus =
+      statusFilter === "all" || product.status === statusFilter;
 
-    return matchesSearch && matchesCategory && matchesStatus
-  })
+    return matchesSearch && matchesCategory && matchesStatus;
+  });
 
-  const categories = [...new Set(products.map((product) => product.category))]
-  const statuses = [...new Set(products.map((product) => product.status))]
+  const categories = [...new Set(products.map((product) => product.category))];
+  const statuses = [...new Set(products.map((product) => product.status))];
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -167,7 +197,10 @@ export default function ProductsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Product Management</CardTitle>
-          <CardDescription>Manage your product inventory, update details, and track stock levels.</CardDescription>
+          <CardDescription>
+            Manage your product inventory, update details, and track stock
+            levels.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
@@ -183,7 +216,10 @@ export default function ProductsPage() {
                 />
               </div>
               <div className="grid grid-cols-2 gap-4 md:flex md:items-center md:space-x-4">
-                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <Select
+                  value={categoryFilter}
+                  onValueChange={setCategoryFilter}
+                >
                   <SelectTrigger className="w-full md:w-[180px]">
                     <SelectValue placeholder="Category" />
                   </SelectTrigger>
@@ -231,7 +267,7 @@ export default function ProductsPage() {
                   <TableRow key={product.id}>
                     <TableCell>
                       <div className="relative h-10 w-10 overflow-hidden rounded-md">
-                        <Image
+                        <img
                           src={product.image || "/placeholder.svg"}
                           alt={product.name}
                           fill
@@ -240,7 +276,10 @@ export default function ProductsPage() {
                       </div>
                     </TableCell>
                     <TableCell className="font-medium">
-                      <Link href={`/admin/products/${product.id}`} className="hover:underline">
+                      <Link
+                        href={`/admin/products/${product.id}`}
+                        className="hover:underline"
+                      >
                         {product.name}
                       </Link>
                     </TableCell>
@@ -254,8 +293,8 @@ export default function ProductsPage() {
                           product.status === "In Stock"
                             ? "border-green-500 text-green-500"
                             : product.status === "Low Stock"
-                              ? "border-yellow-500 text-yellow-500"
-                              : "border-red-500 text-red-500"
+                            ? "border-yellow-500 text-yellow-500"
+                            : "border-red-500 text-red-500"
                         }`}
                       >
                         {product.status}
@@ -320,6 +359,5 @@ export default function ProductsPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
-

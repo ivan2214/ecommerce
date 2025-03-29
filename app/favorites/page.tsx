@@ -56,7 +56,7 @@ export default async function FavoritesPage() {
               <Card key={product.id} className="h-full overflow-hidden group">
                 <div className="relative">
                   <div className="relative h-[200px] w-full overflow-hidden">
-                    <Image
+                    <img
                       src={product.images[0] || "/placeholder.svg"}
                       alt={product.name}
                       fill

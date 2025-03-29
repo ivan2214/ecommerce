@@ -5,80 +5,46 @@ import { ArrowRight, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { prisma } from "@/lib/db";
 
-export default function Home() {
+export default async function Home() {
   // This would normally come from a database query
-  const featuredCategories = [
-    {
-      id: "1",
-      name: "Electronics",
-      image: "/images/categories/electronics.jpg",
-      count: 120,
+  const categories = await prisma.category.findMany({
+    select: {
+      _count: {
+        select: {
+          products: true,
+        },
+      },
+      id: true,
+      name: true,
+      slug: true,
+      image: true,
     },
-    {
-      id: "2",
-      name: "Clothing",
-      image: "/images/categories/clothing.jpg",
-      count: 84,
-    },
-    {
-      id: "3",
-      name: "Home & Kitchen",
-      image: "/images/categories/home.jpg",
-      count: 97,
-    },
-  ];
+  });
+  const featuredCategories = categories.slice(0, 3);
 
-  const featuredProducts = [
-    {
-      id: "1",
-      name: "UltraPhone Pro",
-      description:
-        "The latest smartphone with advanced features and long battery life.",
-      price: 999.99,
-      image: "/images/products/ultraphone-1.jpg",
-      category: "Smartphones",
-      rating: 4.8,
-      reviews: 124,
+  const products = await prisma.product.findMany({
+    where: {
       featured: true,
     },
-    {
-      id: "2",
-      name: "PowerBook Pro",
-      description: "High-performance laptop for professionals and gamers.",
-      price: 1499.99,
-      image: "/images/products/powerbook-1.jpg",
-      category: "Laptops",
-      rating: 4.9,
-      reviews: 86,
-      featured: true,
+    include: {
+      category: true,
+      reviews: true,
     },
-    {
-      id: "3",
-      name: "TechPhone Lite",
-      description:
-        "Affordable smartphone with great performance and camera quality.",
-      price: 499.99,
-      originalPrice: 549.99,
-      image: "/images/products/techphone-1.jpg",
-      category: "Smartphones",
-      rating: 4.5,
-      reviews: 52,
-      featured: true,
-    },
-    {
-      id: "4",
-      name: "SmartWatch X",
-      description:
-        "Track your fitness and stay connected with this stylish smartwatch.",
-      price: 299.99,
-      image: "/images/products/smartwatch-1.jpg",
-      category: "Wearables",
-      rating: 4.6,
-      reviews: 38,
-      featured: true,
-    },
-  ];
+    take: 4,
+  });
+
+  console.log(products);
+
+  const featuredProducts = products.map((product) => ({
+    ...product,
+    category: product.category.name,
+    rating: (
+      product.reviews.reduce((acc, review) => acc + review.rating, 0) /
+      product.reviews.length
+    ).toFixed(1),
+  }));
 
   const testimonials = [
     {
@@ -141,12 +107,10 @@ export default function Home() {
               </div>
             </div>
             <div className="relative h-[300px] md:h-[400px] lg:h-[500px] overflow-hidden rounded-xl">
-              <Image
+              <img
                 src="/placeholder.svg"
                 alt="Hero Image"
-                fill
                 className="object-cover"
-                priority
               />
             </div>
           </div>
@@ -172,17 +136,18 @@ export default function Home() {
               <Link key={category.id} href={`/categories/${category.id}`}>
                 <div className="group relative overflow-hidden rounded-lg">
                   <div className="relative h-[200px] w-full overflow-hidden">
-                    <Image
+                    <img
                       src={category.image || "/placeholder.svg"}
                       alt={category.name}
-                      fill
                       className="object-cover transition-transform group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-black/40 transition-opacity group-hover:bg-black/50" />
                   </div>
                   <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center text-white">
                     <h3 className="text-xl font-bold">{category.name}</h3>
-                    <p className="text-sm">{category.count} Products</p>
+                    <p className="text-sm">
+                      {category._count?.products} Products
+                    </p>
                   </div>
                 </div>
               </Link>
@@ -209,13 +174,12 @@ export default function Home() {
               <Link key={product.id} href={`/products/${product.id}`}>
                 <Card className="h-full overflow-hidden group">
                   <div className="relative h-[200px] w-full overflow-hidden">
-                    <Image
-                      src={product.image || "/placeholder.svg"}
+                    <img
+                      src={product.images[0] || "/placeholder.svg"}
                       alt={product.name}
-                      fill
                       className="object-cover transition-transform group-hover:scale-105"
                     />
-                    {product.originalPrice && (
+                    {product.price && (
                       <Badge className="absolute top-2 right-2 bg-red-500 hover:bg-red-600">
                         Sale
                       </Badge>
@@ -233,7 +197,7 @@ export default function Home() {
                           {product.rating}
                         </span>
                         <span className="text-sm text-muted-foreground">
-                          ({product.reviews})
+                          ({product.rating})
                         </span>
                       </div>
                     </div>
@@ -288,10 +252,9 @@ export default function Home() {
                 <CardContent className="p-6 flex flex-col h-full">
                   <div className="flex items-center space-x-4 mb-4">
                     <div className="relative h-10 w-10 overflow-hidden rounded-full">
-                      <Image
+                      <img
                         src={testimonial.avatar || "/placeholder.svg"}
                         alt={testimonial.name}
-                        fill
                         className="object-cover"
                       />
                     </div>
