@@ -1,20 +1,26 @@
-import Link from "next/link"
-import Image from "next/image"
-import { auth } from "@clerk/nextjs/server"
-import { redirect } from "next/navigation"
-import { prisma } from "@/lib/db"
-import { Trash2 } from "lucide-react"
+import Link from "next/link";
+import Image from "next/image";
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
+import { prisma } from "@/lib/db";
+import { Trash2 } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { CartActions } from "@/components/cart-actions"
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { CartActions } from "@/components/cart-actions";
 
 export default async function CartPage() {
-  const { userId } = auth()
+  const { userId } = await auth();
 
   if (!userId) {
-    redirect("/sign-in")
+    redirect("/sign-in");
   }
 
   // Get user's cart
@@ -27,12 +33,15 @@ export default async function CartPage() {
         },
       },
     },
-  })
+  });
 
-  const cartItems = cart?.items || []
-  const subtotal = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
-  const shipping = 10.0
-  const total = subtotal + shipping
+  const cartItems = cart?.items || [];
+  const subtotal = cartItems.reduce(
+    (sum, item) => sum + item.product.price * item.quantity,
+    0
+  );
+  const shipping = 10.0;
+  const total = subtotal + shipping;
 
   return (
     <div className="container max-w-6xl py-8">
@@ -42,7 +51,10 @@ export default async function CartPage() {
         <div className="grid gap-8 md:grid-cols-3">
           <div className="md:col-span-2 space-y-4">
             {cartItems.map((item) => (
-              <div key={item.id} className="flex items-start gap-4 rounded-lg border p-4">
+              <div
+                key={item.id}
+                className="flex items-start gap-4 rounded-lg border p-4"
+              >
                 <div className="relative h-24 w-24 overflow-hidden rounded-md">
                   <Image
                     src={item.product.images[0] || "/placeholder.svg"}
@@ -52,10 +64,15 @@ export default async function CartPage() {
                   />
                 </div>
                 <div className="flex-1 space-y-1">
-                  <Link href={`/products/${item.product.id}`} className="font-medium hover:underline">
+                  <Link
+                    href={`/products/${item.product.id}`}
+                    className="font-medium hover:underline"
+                  >
                     {item.product.name}
                   </Link>
-                  <p className="text-sm text-muted-foreground">${item.product.price.toFixed(2)}</p>
+                  <p className="text-sm text-muted-foreground">
+                    ${item.product.price.toFixed(2)}
+                  </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <CartActions item={item} />
@@ -98,13 +115,14 @@ export default async function CartPage() {
             <Trash2 className="h-10 w-10 text-muted-foreground" />
           </div>
           <h2 className="text-xl font-semibold">Your cart is empty</h2>
-          <p className="mt-2 text-muted-foreground">Looks like you haven't added anything to your cart yet.</p>
+          <p className="mt-2 text-muted-foreground">
+            Looks like you haven't added anything to your cart yet.
+          </p>
           <Button className="mt-6" asChild>
             <Link href="/products">Continue Shopping</Link>
           </Button>
         </div>
       )}
     </div>
-  )
+  );
 }
-

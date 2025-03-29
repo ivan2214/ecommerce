@@ -1,71 +1,66 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Minus, Plus, Trash2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { useToast } from "@/components/ui/use-toast"
-import { updateCartItemQuantity, removeFromCart } from "@/lib/actions"
+import { useState } from "react";
+import { Minus, Plus, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+import { updateCartItemQuantity, removeFromCart } from "@/lib/actions";
+import { toast } from "sonner";
 
 type CartItem = {
-  id: string
-  quantity: number
+  id: string;
+  quantity: number;
   product: {
-    id: string
-    name: string
-    price: number
-    images: string[]
-  }
-}
+    id: string;
+    name: string;
+    price: number;
+    images: string[];
+  };
+};
 
 type CartActionsProps = {
-  item: CartItem
-}
+  item: CartItem;
+};
 
 export function CartActions({ item }: CartActionsProps) {
-  const { toast } = useToast()
-  const [isUpdating, setIsUpdating] = useState(false)
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const handleUpdateQuantity = async (newQuantity: number) => {
-    if (newQuantity < 1 || isUpdating) return
+    if (newQuantity < 1 || isUpdating) return;
 
-    setIsUpdating(true)
+    setIsUpdating(true);
 
     try {
-      await updateCartItemQuantity(item.id, newQuantity)
+      await updateCartItemQuantity(item.id, newQuantity);
     } catch (error) {
-      console.error(error)
-      toast({
-        title: "Error",
+      console.error(error);
+      toast.error("Error", {
         description: "Failed to update quantity",
-        variant: "destructive",
-      })
+      });
     } finally {
-      setIsUpdating(false)
+      setIsUpdating(false);
     }
-  }
+  };
 
   const handleRemove = async () => {
-    if (isUpdating) return
+    if (isUpdating) return;
 
-    setIsUpdating(true)
+    setIsUpdating(true);
 
     try {
-      await removeFromCart(item.id)
-      toast({
-        title: "Item removed",
+      await removeFromCart(item.id);
+      toast("Item removed", {
         description: "The item has been removed from your cart",
-      })
+      });
     } catch (error) {
-      console.error(error)
-      toast({
-        title: "Error",
+      console.error(error);
+      toast.error("Error", {
         description: "Failed to remove item",
-        variant: "destructive",
-      })
+      });
     } finally {
-      setIsUpdating(false)
+      setIsUpdating(false);
     }
-  }
+  };
 
   return (
     <div className="flex flex-col items-end gap-2">
@@ -103,6 +98,5 @@ export function CartActions({ item }: CartActionsProps) {
         Remove
       </Button>
     </div>
-  )
+  );
 }
-
