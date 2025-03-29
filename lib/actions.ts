@@ -22,7 +22,13 @@ export async function createProduct(formData: FormData) {
 
   const name = formData.get("name") as string;
   const description = formData.get("description") as string;
-  const price = Number.parseFloat(formData.get("price") as string);
+  const originalPrice = Number.parseFloat(
+    formData.get("originalPrice") as string
+  );
+  const hasDiscount = formData.get("hasDiscount") === "on";
+  const discount = Number.parseFloat(formData.get("discount") as string);
+  const price = hasDiscount ? originalPrice - discount : originalPrice;
+
   const stock = Number.parseInt(formData.get("stock") as string);
   const categoryId = formData.get("categoryId") as string;
   const featured = formData.get("featured") === "on";
@@ -35,6 +41,9 @@ export async function createProduct(formData: FormData) {
       name,
       description,
       price,
+      originalPrice,
+      hasDiscount,
+      discount,
       stock,
       categoryId,
       featured,
@@ -346,6 +355,18 @@ export async function toggleFavorite(productId: string) {
 
   if (!userId) {
     throw new Error("You must be signed in to add favorites");
+  }
+
+  const existingUser = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+
+  const existingProduct = await prisma.product.findUnique({
+    where: { id: productId },
+  });
+
+  if (!existingUser || !existingProduct) {
+    throw new Error("User or product not found");
   }
 
   // Check if product is already in favorites
