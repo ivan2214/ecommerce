@@ -1,17 +1,17 @@
-import { auth } from "@clerk/nextjs/server"
-import { currentUser } from "@clerk/nextjs/server"
-import { redirect } from "next/navigation"
-import { prisma } from "@/lib/db"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { CheckoutForm } from "@/components/checkout-form"
+import { auth } from "@clerk/nextjs/server";
+import { currentUser } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
+import { prisma } from "@/lib/db";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { CheckoutForm } from "@/components/checkout-form";
 
 export default async function CheckoutPage() {
-  const { userId } = auth()
-  const user = await currentUser()
+  const { userId } = await auth();
+  const user = await currentUser();
 
   if (!userId || !user) {
-    redirect("/sign-in")
+    redirect("/sign-in");
   }
 
   // Get user's cart
@@ -24,22 +24,25 @@ export default async function CheckoutPage() {
         },
       },
     },
-  })
+  });
 
   if (!cart || cart.items.length === 0) {
-    redirect("/cart")
+    redirect("/cart");
   }
 
   // Get user's addresses
   const addresses = await prisma.address.findMany({
     where: { userId },
     orderBy: { isDefault: "desc" },
-  })
+  });
 
-  const cartItems = cart.items
-  const subtotal = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
-  const shipping = 10.0
-  const total = subtotal + shipping
+  const cartItems = cart.items;
+  const subtotal = cartItems.reduce(
+    (sum, item) => sum + item.product.price * item.quantity,
+    0
+  );
+  const shipping = 10.0;
+  const total = subtotal + shipping;
 
   return (
     <div className="container max-w-6xl py-8">
@@ -60,9 +63,14 @@ export default async function CheckoutPage() {
                 {cartItems.map((item) => (
                   <div key={item.id} className="flex justify-between text-sm">
                     <span>
-                      {item.product.name} <span className="text-muted-foreground">x{item.quantity}</span>
+                      {item.product.name}{" "}
+                      <span className="text-muted-foreground">
+                        x{item.quantity}
+                      </span>
                     </span>
-                    <span>${(item.product.price * item.quantity).toFixed(2)}</span>
+                    <span>
+                      ${(item.product.price * item.quantity).toFixed(2)}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -87,6 +95,5 @@ export default async function CheckoutPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
-

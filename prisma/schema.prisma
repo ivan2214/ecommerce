@@ -38,6 +38,8 @@ model User {
   passwordHash String?
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
+  clerkUserId  String?    @unique
+  imageUrl     String?
   cart         Cart?
   orders       Order[]
   reviews      Review[]

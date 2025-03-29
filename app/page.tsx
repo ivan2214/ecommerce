@@ -35,8 +35,6 @@ export default async function Home() {
     take: 4,
   });
 
-  console.log(products);
-
   const featuredProducts = products.map((product) => ({
     ...product,
     category: product.category.name,

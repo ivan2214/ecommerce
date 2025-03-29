@@ -361,9 +361,19 @@ export async function toggleFavorite(productId: string) {
     where: { id: userId },
   });
 
+  if (!existingUser) {
+    throw new Error("User not found");
+  }
+
   const existingProduct = await prisma.product.findUnique({
     where: { id: productId },
   });
+
+  // Check if product exists
+
+  if (!existingProduct) {
+    throw new Error("Product not found");
+  }
 
   if (!existingUser || !existingProduct) {
     throw new Error("User or product not found");

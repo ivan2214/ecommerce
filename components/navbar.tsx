@@ -1,24 +1,26 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { UserButton, useUser } from "@clerk/nextjs"
-import { ShoppingCart, Menu, X, Search, Heart, Package } from "lucide-react"
+import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { UserButton, useUser } from "@clerk/nextjs";
+import { ShoppingCart, Menu, X, Search, Heart, Package } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { ModeToggle } from "@/components/mode-toggle"
-import CartPreview from "@/components/cart-preview"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { ModeToggle } from "@/components/mode-toggle";
+import CartPreview from "@/components/cart-preview";
 
 export default function Navbar() {
-  const { isSignedIn, user } = useUser()
-  const pathname = usePathname()
-  const [isSearchOpen, setIsSearchOpen] = useState(false)
-  const [isCartOpen, setIsCartOpen] = useState(false)
+  const { isSignedIn, user } = useUser();
+  const pathname = usePathname();
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
-  const isAdmin = user?.publicMetadata?.role === "SUPER_ADMIN" || user?.publicMetadata?.role === "PRODUCT_MANAGER"
+  const isAdmin =
+    user?.publicMetadata?.role === "SUPER_ADMIN" ||
+    user?.publicMetadata?.role === "PRODUCT_MANAGER";
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -52,7 +54,9 @@ export default function Navbar() {
           <Link
             href="/products"
             className={`transition-colors hover:text-foreground/80 ${
-              pathname.startsWith("/products") ? "text-foreground" : "text-foreground/60"
+              pathname.startsWith("/products")
+                ? "text-foreground"
+                : "text-foreground/60"
             }`}
           >
             Products
@@ -60,7 +64,9 @@ export default function Navbar() {
           <Link
             href="/categories"
             className={`transition-colors hover:text-foreground/80 ${
-              pathname.startsWith("/categories") ? "text-foreground" : "text-foreground/60"
+              pathname.startsWith("/categories")
+                ? "text-foreground"
+                : "text-foreground/60"
             }`}
           >
             Categories
@@ -69,7 +75,9 @@ export default function Navbar() {
             <Link
               href="/admin"
               className={`transition-colors hover:text-foreground/80 ${
-                pathname.startsWith("/admin") ? "text-foreground" : "text-foreground/60"
+                pathname.startsWith("/admin")
+                  ? "text-foreground"
+                  : "text-foreground/60"
               }`}
             >
               Admin
@@ -82,7 +90,12 @@ export default function Navbar() {
         <div className="flex items-center space-x-2">
           {isSearchOpen ? (
             <div className="relative w-full max-w-sm">
-              <Input type="search" placeholder="Search products..." className="w-full" autoFocus />
+              <Input
+                type="search"
+                placeholder="Search products..."
+                className="w-full"
+                autoFocus
+              />
               <Button
                 variant="ghost"
                 size="icon"
@@ -94,7 +107,11 @@ export default function Navbar() {
               </Button>
             </div>
           ) : (
-            <Button variant="ghost" size="icon" onClick={() => setIsSearchOpen(true)}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsSearchOpen(true)}
+            >
               <Search className="h-5 w-5" />
               <span className="sr-only">Search</span>
             </Button>
@@ -127,7 +144,7 @@ export default function Navbar() {
           <ModeToggle />
 
           {isSignedIn ? (
-            <UserButton afterSignOutUrl="/" />
+            <UserButton afterSwitchSessionUrl="/" />
           ) : (
             <Link href="/sign-in">
               <Button variant="default" size="sm">
@@ -138,14 +155,16 @@ export default function Navbar() {
         </div>
       </div>
     </header>
-  )
+  );
 }
 
 function MobileNav() {
-  const { isSignedIn, user } = useUser()
-  const pathname = usePathname()
+  const { isSignedIn, user } = useUser();
+  const pathname = usePathname();
 
-  const isAdmin = user?.publicMetadata?.role === "SUPER_ADMIN" || user?.publicMetadata?.role === "PRODUCT_MANAGER"
+  const isAdmin =
+    user?.publicMetadata?.role === "SUPER_ADMIN" ||
+    user?.publicMetadata?.role === "PRODUCT_MANAGER";
 
   return (
     <div className="flex flex-col h-full">
@@ -155,18 +174,27 @@ function MobileNav() {
       </Link>
       <div className="flex-1 overflow-auto py-2">
         <nav className="flex flex-col space-y-3">
-          <Link href="/" className={`px-2 py-1 rounded-md ${pathname === "/" ? "bg-accent" : ""}`}>
+          <Link
+            href="/"
+            className={`px-2 py-1 rounded-md ${
+              pathname === "/" ? "bg-accent" : ""
+            }`}
+          >
             Home
           </Link>
           <Link
             href="/products"
-            className={`px-2 py-1 rounded-md ${pathname.startsWith("/products") ? "bg-accent" : ""}`}
+            className={`px-2 py-1 rounded-md ${
+              pathname.startsWith("/products") ? "bg-accent" : ""
+            }`}
           >
             Products
           </Link>
           <Link
             href="/categories"
-            className={`px-2 py-1 rounded-md ${pathname.startsWith("/categories") ? "bg-accent" : ""}`}
+            className={`px-2 py-1 rounded-md ${
+              pathname.startsWith("/categories") ? "bg-accent" : ""
+            }`}
           >
             Categories
           </Link>
@@ -174,26 +202,37 @@ function MobileNav() {
             <>
               <Link
                 href="/orders"
-                className={`px-2 py-1 rounded-md ${pathname.startsWith("/orders") ? "bg-accent" : ""}`}
+                className={`px-2 py-1 rounded-md ${
+                  pathname.startsWith("/orders") ? "bg-accent" : ""
+                }`}
               >
                 My Orders
               </Link>
               <Link
                 href="/favorites"
-                className={`px-2 py-1 rounded-md ${pathname.startsWith("/favorites") ? "bg-accent" : ""}`}
+                className={`px-2 py-1 rounded-md ${
+                  pathname.startsWith("/favorites") ? "bg-accent" : ""
+                }`}
               >
                 Favorites
               </Link>
               <Link
                 href="/profile"
-                className={`px-2 py-1 rounded-md ${pathname.startsWith("/profile") ? "bg-accent" : ""}`}
+                className={`px-2 py-1 rounded-md ${
+                  pathname.startsWith("/profile") ? "bg-accent" : ""
+                }`}
               >
                 Profile
               </Link>
             </>
           )}
           {isAdmin && (
-            <Link href="/admin" className={`px-2 py-1 rounded-md ${pathname.startsWith("/admin") ? "bg-accent" : ""}`}>
+            <Link
+              href="/admin"
+              className={`px-2 py-1 rounded-md ${
+                pathname.startsWith("/admin") ? "bg-accent" : ""
+              }`}
+            >
               Admin Dashboard
             </Link>
           )}
@@ -216,6 +255,5 @@ function MobileNav() {
         </div>
       )}
     </div>
-  )
+  );
 }
-

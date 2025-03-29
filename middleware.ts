@@ -1,12 +1,18 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
 const isProtectedAdminRoute = createRouteMatcher(["/admin(.*)"]);
-const;
+const isPublicRoute = createRouteMatcher(["/api/webhooks(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
   // Restringir las rutas de administración a usuarios con permisos específicos
   // Por ejemplo, solo permitir a los administradores de la organización
   // que accedan a las rutas de administración
+
+  // Skip authentication for public routes
+  if (isPublicRoute(req)) {
+    return;
+  }
+
   if (isProtectedAdminRoute(req)) {
     await auth.protect((has) => {
       return (
