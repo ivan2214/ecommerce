@@ -75,6 +75,8 @@ model Product {
   orderItems    OrderItem[]
   reviews       Review[]
   favorites     Favorite[]
+  rating        Float       @default(0)
+  hasDiscount   Boolean     @default(false)
 }
 
 model Cart {

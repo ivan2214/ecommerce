@@ -1,4 +1,10 @@
-import { PrismaClient, Role, OrderStatus, PaymentMethod } from "@prisma/client";
+import {
+  PrismaClient,
+  Role,
+  OrderStatus,
+  PaymentMethod,
+  Product,
+} from "@prisma/client";
 import { faker } from "@faker-js/faker";
 import { hash } from "bcryptjs";
 
@@ -71,11 +77,6 @@ async function main() {
           name: category.name,
           slug: category.slug,
           description: category.description,
-          image: faker.image.urlLoremFlickr({
-            category: category.slug,
-            width: 640,
-            height: 480,
-          }),
         },
       })
     )
@@ -146,49 +147,53 @@ async function main() {
 
   // Create products
   console.log("Creating products...");
-  const products = await Promise.all(
-    createdCategories.flatMap((category) =>
-      Array.from({ length: faker.number.int({ min: 5, max: 15 }) }).map(() => {
-        const name = faker.commerce.productName();
-        const originalPrice = Number.parseFloat(
-          faker.commerce.price({ min: 10, max: 2000 })
-        );
-        const stock = faker.number.int({ min: 0, max: 100 });
-        const hasDiscount = faker.datatype.boolean({ probability: 0.5 });
-        const discount = hasDiscount
-          ? faker.number.int({ min: 5, max: 50 })
-          : 0;
-        const price = hasDiscount
-          ? originalPrice - (originalPrice * discount) / 100
-          : originalPrice;
-        const featured = faker.datatype.boolean({ probability: 0.2 });
 
-        return prisma.product.create({
-          data: {
-            name,
-            slug: faker.helpers.slugify(name).toLowerCase(),
-            description: faker.commerce.productDescription(),
-            originalPrice,
-            price,
-            discount,
-
-            stock,
-            categoryId: category.id,
-            featured,
-            images: Array.from({
-              length: faker.number.int({ min: 1, max: 5 }),
-            }).map(() =>
-              faker.image.urlLoremFlickr({
-                category: category.slug,
-                width: 800,
-                height: 600,
-              })
-            ),
-          },
-        });
+  const products: Product[] = [];
+  for (const category of createdCategories) {
+    const numberOfProducts = faker.number.int({ min: 5, max: 15 });
+    const images = Array.from({
+      length: faker.number.int({ min: 1, max: 5 }),
+    }).map(() =>
+      faker.image.urlLoremFlickr({
+        category: category.name,
+        width: 800,
+        height: 600,
       })
-    )
-  );
+    );
+
+    for (let i = 0; i < numberOfProducts; i++) {
+      const name = faker.commerce.productName();
+      const originalPrice = Number.parseFloat(
+        faker.commerce.price({ min: 10, max: 2000 })
+      );
+      const stock = faker.number.int({ min: 0, max: 100 });
+      const hasDiscount = faker.datatype.boolean({ probability: 0.5 });
+      const discount = hasDiscount ? faker.number.int({ min: 5, max: 50 }) : 0;
+      const price = hasDiscount
+        ? originalPrice - (originalPrice * discount) / 100
+        : originalPrice;
+      const featured = faker.datatype.boolean({ probability: 0.2 });
+
+      // Crear el producto
+      const product = await prisma.product.create({
+        data: {
+          name,
+          slug: faker.helpers.slugify(name).toLowerCase(),
+          description: faker.commerce.productDescription(),
+          originalPrice,
+          price,
+          discount,
+          hasDiscount,
+          stock,
+          categoryId: category.id,
+          featured,
+          images,
+        },
+      });
+
+      products.push(product); // Agregar el producto a la lista de productos
+    }
+  }
 
   // Create reviews for products
   console.log("Creating reviews...");
@@ -227,6 +232,27 @@ async function main() {
       );
     })
   );
+
+  // Obtener el producto con mejor rating por categoría
+  for (const category of createdCategories) {
+    const topRatedProduct = await prisma.product.findFirst({
+      where: { categoryId: category.id },
+      orderBy: {
+        reviews: {
+          _count: "desc",
+        },
+      },
+      include: { reviews: true },
+    });
+
+    // Si la categoría tiene productos con reviews, tomar la imagen del mejor valorado
+    if (topRatedProduct && topRatedProduct.images.length > 0) {
+      await prisma.category.update({
+        where: { id: category.id },
+        data: { image: topRatedProduct.images[0] },
+      });
+    }
+  }
 
   // Create favorites
   console.log("Creating favorites...");

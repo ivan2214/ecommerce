@@ -86,9 +86,7 @@ export default async function ProductPage({
             <img
               src={product.images[0] || "/placeholder.svg"}
               alt={product.name}
-              fill
               className="object-cover"
-              priority
             />
           </div>
           <div className="grid grid-cols-4 gap-2">
@@ -100,7 +98,6 @@ export default async function ProductPage({
                 <img
                   src={image || "/placeholder.svg"}
                   alt={`${product.name} - Image ${index + 1}`}
-                  fill
                   className="object-cover"
                 />
               </div>
@@ -247,7 +244,6 @@ export default async function ProductPage({
                             <img
                               src="/placeholder-user.jpg"
                               alt="User"
-                              fill
                               className="object-cover"
                             />
                           )}
@@ -300,7 +296,6 @@ export default async function ProductPage({
                   <img
                     src={relatedProduct.images[0] || "/placeholder.svg"}
                     alt={relatedProduct.name}
-                    fill
                     className="object-cover transition-transform group-hover:scale-105"
                   />
                 </div>

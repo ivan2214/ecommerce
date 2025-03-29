@@ -204,7 +204,7 @@ export default async function Home() {
                   </CardContent>
                   <CardFooter className="p-4 pt-0 flex items-center">
                     <div className="flex items-center">
-                      {product.originalPrice ? (
+                      {product.hasDiscount ? (
                         <>
                           <p className="font-semibold">
                             ${product.price.toFixed(2)}
@@ -215,7 +215,7 @@ export default async function Home() {
                         </>
                       ) : (
                         <p className="font-semibold">
-                          ${product.price.toFixed(2)}
+                          ${product.originalPrice.toFixed(2)}
                         </p>
                       )}
                     </div>
