@@ -28,8 +28,9 @@ export const SidebarFilters: React.FC<SidebarFiltersProps> = ({
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const handleClearFilters = () => {
-    // TODO: clear filters
+  const handleResetFilters = () => {
+    const params = new URLSearchParams();
+    router.push(`?${params.toString()}`, { scroll: false });
   };
 
   const handleCategoryFilter = (categoryName: string, isChecked: boolean) => {
@@ -47,6 +48,26 @@ export const SidebarFilters: React.FC<SidebarFiltersProps> = ({
       params.set("category", categories.join(","));
     } else {
       params.delete("category");
+    }
+
+    router.push(`?${params.toString()}`, { scroll: false });
+  };
+
+  const handleBrandFilter = (brandName: string, isChecked: boolean) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    let brands = params.get("brand")?.split(",") || [];
+
+    if (isChecked) {
+      brands.push(brandName);
+    } else {
+      brands = brands.filter((c) => c !== brandName);
+    }
+
+    if (brands.length > 0) {
+      params.set("brand", brands.join(","));
+    } else {
+      params.delete("brand");
     }
 
     router.push(`?${params.toString()}`, { scroll: false });
@@ -147,7 +168,18 @@ export const SidebarFilters: React.FC<SidebarFiltersProps> = ({
             <div className="space-y-2">
               {brands.map((brand) => (
                 <div key={brand.id} className="flex items-center space-x-2">
-                  <Checkbox id={`brand-${brand.id}`} />
+                  <Checkbox
+                    id={`brand-${brand.id}`}
+                    checked={
+                      searchParams
+                        .get("brand")
+                        ?.split(",")
+                        .includes(brand.name) || false
+                    }
+                    onCheckedChange={(isChecked) =>
+                      handleBrandFilter(brand.name, !!isChecked)
+                    }
+                  />
                   <Label
                     htmlFor={`brand-${brand.id}`}
                     className="flex-1 text-sm font-normal cursor-pointer"
@@ -213,7 +245,7 @@ export const SidebarFilters: React.FC<SidebarFiltersProps> = ({
         </AccordionItem>
       </Accordion>
       <Separator />
-      <Button variant="outline" className="w-full">
+      <Button onClick={handleResetFilters} variant="outline" className="w-full">
         Reset Filters
       </Button>
     </div>
