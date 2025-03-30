@@ -58,6 +58,17 @@ model Category {
   products    Product[]
 }
 
+model Brand {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  image       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[]
+}
+
 model Product {
   id            String      @id @default(cuid())
   name          String
@@ -79,6 +90,8 @@ model Product {
   favorites     Favorite[]
   rating        Float       @default(0)
   hasDiscount   Boolean     @default(false)
+  brand         Brand?      @relation(fields: [brandId], references: [id])
+  brandId       String?
 }
 
 model Cart {

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { Star } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -22,96 +21,128 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { prisma } from "@/lib/db";
+import { Prisma } from "@prisma/client";
 
-export default function ProductsPage() {
+type SearchParams = Promise<{
+  category: string | null;
+  brand: string | null;
+  minPrice: string | null;
+  maxPrice: string | null;
+  sort: string | null;
+}>;
+
+export default async function ProductsPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const params = await searchParams;
+
+  const where: Prisma.ProductWhereInput = {};
+
+  // Manejo de categorías (puede ser un string simple o varias separadas por comas)
+  if (params.category) {
+    where.category = params.category.includes(",")
+      ? {
+          name: { in: params.category.split(",") },
+        }
+      : {
+          name: {
+            equals: params.category,
+          },
+        };
+  }
+
+  // Manejo de marcas (similar a categorías)
+  if (params.brand) {
+    where.brand = params.brand.includes(",")
+      ? {
+          name: {
+            in: params.brand.split(","),
+          },
+        }
+      : {
+          name: {
+            equals: params.brand,
+          },
+        };
+  }
+
+  // Manejo de precio mínimo y máximo
+  if (params.minPrice || params.maxPrice) {
+    where.price = {
+      ...(params.minPrice ? { gte: parseFloat(params.minPrice) } : {}),
+      ...(params.maxPrice ? { lte: parseFloat(params.maxPrice) } : {}),
+    };
+  }
+
+  const orderBy: Prisma.ProductOrderByWithRelationInput = {
+    ...(params.sort === "price-asc" ? { price: "asc" } : {}),
+    ...(params.sort === "price-desc" ? { price: "desc" } : {}),
+  };
+
   // This would normally come from a database query
-  const products = [
-    {
-      id: "1",
-      name: "UltraPhone Pro",
-      description:
-        "The latest smartphone with advanced features and long battery life.",
-      price: 999.99,
-      image: "/images/products/ultraphone-1.jpg",
-      category: "Smartphones",
-      rating: 4.8,
-      reviews: 124,
-      featured: true,
-    },
-    {
-      id: "2",
-      name: "PowerBook Pro",
-      description: "High-performance laptop for professionals and gamers.",
-      price: 1499.99,
-      image: "/images/products/powerbook-1.jpg",
-      category: "Laptops",
-      rating: 4.9,
-      reviews: 86,
-      featured: true,
-    },
-    {
-      id: "3",
-      name: "TechPhone Lite",
-      description:
-        "Affordable smartphone with great performance and camera quality.",
-      price: 499.99,
-      originalPrice: 549.99,
-      image: "/images/products/techphone-1.jpg",
-      category: "Smartphones",
-      rating: 4.5,
-      reviews: 52,
-      featured: true,
-    },
-    {
-      id: "4",
-      name: "SmartWatch X",
-      description:
-        "Track your fitness and stay connected with this stylish smartwatch.",
-      price: 299.99,
-      image: "/images/products/smartwatch-1.jpg",
-      category: "Wearables",
-      rating: 4.6,
-      reviews: 38,
-      featured: true,
-    },
-    {
-      id: "5",
-      name: "Wireless Earbuds Pro",
-      description: "Immersive sound quality with active noise cancellation.",
-      price: 199.99,
-      image: "/images/products/earbuds-1.jpg",
-      category: "Audio",
-      rating: 4.7,
-      reviews: 92,
-    },
-    {
-      id: "6",
-      name: "Gaming Console X",
-      description:
-        "Next-generation gaming with stunning graphics and fast performance.",
-      price: 499.99,
-      image: "/images/products/console-1.jpg",
-      category: "Gaming",
-      rating: 4.9,
-      reviews: 76,
-    },
-  ];
+  const products = await prisma.product
+    .findMany({
+      orderBy,
+      where,
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        price: true,
+        images: true,
+        category: true,
+        brand: true,
+        originalPrice: true,
+        hasDiscount: true,
+        discount: true,
+        _count: {
+          select: {
+            reviews: true,
+          },
+        },
+      },
+    })
+    .then((products) => {
+      return products.map((product) => ({
+        ...product,
+        rating: product._count.reviews / product._count.reviews,
+        reviews: product._count.reviews,
+        category: product.category.name,
+      }));
+    });
 
-  const categories = [
-    { id: "1", name: "Smartphones", count: 12 },
-    { id: "2", name: "Laptops", count: 8 },
-    { id: "3", name: "Wearables", count: 6 },
-    { id: "4", name: "Audio", count: 10 },
-    { id: "5", name: "Gaming", count: 7 },
-  ];
+  const categories = await prisma.category.findMany({
+    select: {
+      id: true,
+      name: true,
+      _count: {
+        select: {
+          products: true,
+        },
+      },
+    },
+    orderBy: {
+      name: "asc",
+    },
+  });
 
-  const brands = [
-    { id: "1", name: "TechBrand", count: 15 },
-    { id: "2", name: "UltraTech", count: 12 },
-    { id: "3", name: "PowerTech", count: 8 },
-    { id: "4", name: "SmartLife", count: 6 },
-    { id: "5", name: "GamerX", count: 4 },
-  ];
+  const brands = await prisma.brand.findMany({
+    select: {
+      id: true,
+      name: true,
+      _count: {
+        select: {
+          products: true,
+        },
+      },
+    },
+    orderBy: {
+      name: "asc",
+    },
+  });
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -146,7 +177,7 @@ export default function ProductsPage() {
                           htmlFor={`category-${category.id}`}
                           className="flex-1 text-sm font-normal cursor-pointer"
                         >
-                          {category.name} ({category.count})
+                          {category.name} ({category._count.products})
                         </Label>
                       </div>
                     ))}
@@ -191,7 +222,7 @@ export default function ProductsPage() {
                           htmlFor={`brand-${brand.id}`}
                           className="flex-1 text-sm font-normal cursor-pointer"
                         >
-                          {brand.name} ({brand.count})
+                          {brand.name} ({brand._count.products})
                         </Label>
                       </div>
                     ))}
@@ -295,9 +326,8 @@ export default function ProductsPage() {
                   <Card className="h-full overflow-hidden group">
                     <div className="relative h-[200px] w-full overflow-hidden">
                       <img
-                        src={product.image || "/placeholder.svg"}
+                        src={product.images[0] || "/placeholder.svg"}
                         alt={product.name}
-                        fill
                         className="object-cover transition-transform group-hover:scale-105"
                       />
                       {product.originalPrice && (

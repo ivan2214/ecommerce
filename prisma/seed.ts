@@ -145,6 +145,23 @@ async function main() {
     )
   );
 
+  // create brands
+
+  console.log("Creating brands...");
+
+  const brands = await Promise.all(
+    Array.from({ length: 10 }).map(async (_, i) => {
+      const name = faker.company.name();
+      return prisma.brand.create({
+        data: {
+          name,
+          slug: name.toLowerCase().replace(" ", "-"),
+          description: faker.lorem.sentence(),
+        },
+      });
+    })
+  );
+
   // Create products
   console.log("Creating products...");
 
@@ -160,6 +177,7 @@ async function main() {
         height: 600,
       })
     );
+    const brand = brands[faker.number.int({ min: 0, max: brands.length - 1 })];
 
     for (let i = 0; i < numberOfProducts; i++) {
       const name = faker.commerce.productName();
@@ -188,6 +206,7 @@ async function main() {
           categoryId: category.id,
           featured,
           images,
+          brandId: brand.id,
         },
       });
 
