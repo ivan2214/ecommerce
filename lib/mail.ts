@@ -1,5 +1,4 @@
-import { EmailTemplate } from "@/components/email-template";
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
 type EmailOptions = {
   to: string;
@@ -7,29 +6,29 @@ type EmailOptions = {
   html: string;
 };
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT),
+  secure: process.env.SMTP_SECURE === "true",
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
+
 const mailUser = process.env.EMAIL_FROM;
 const domain = process.env.NEXTAUTH_URL;
 
 const sendEmail = async ({ to, subject, html }: EmailOptions) => {
   try {
-    const response = await resend.emails.send({
-      from: mailUser!,
+    const response = await transporter.sendMail({
+      from: mailUser,
       to,
       subject,
       html,
     });
-    if (response.error) {
-      console.error("Error sending email:", response.error);
-      return {
-        success: false,
-        message: "Failed to send email",
-        error: response.error,
-      };
-    }
 
     console.log("Email sent successfully:", response);
-
     return { success: true, message: "Email sent successfully" };
   } catch (error) {
     console.error("Error sending email:", error);
@@ -40,38 +39,32 @@ const sendEmail = async ({ to, subject, html }: EmailOptions) => {
 };
 
 export const sendVerificationEmail = async (email: string, token: string) => {
-  console.log("sendVerificationEmail", email, token);
-
-  const confirmLink = `${domain}/auth/new-verification?token=${token}`;
-  const html = EmailTemplate({
-    link: confirmLink,
-    text: "Confirm Email Address",
-  });
+  const html = `<p>Your verification code is: <strong>${token}</strong></p>`;
 
   return await sendEmail({
     to: email,
-    subject: "Confirm your email",
-    html: html.toString(),
+    subject: "Your Verification Code",
+    html,
   });
 };
 
 export const sendPasswordResetEmail = async (email: string, token: string) => {
   const confirmLink = `${domain}/auth/new-password?token=${token}`;
-  const html = EmailTemplate({ link: confirmLink, text: "Reset Password" });
+  const html = `<p>Click the link to reset your password: <a href="${confirmLink}">${confirmLink}</a></p>`;
 
   return await sendEmail({
     to: email,
     subject: "Reset your password",
-    html: html.toString(),
+    html,
   });
 };
 
 export const sendTwoFactorTokenEmail = async (email: string, token: string) => {
-  const html = EmailTemplate({ link: "#", text: `Your 2FA code: ${token}` });
+  const html = `<p>Your 2FA code is: <strong>${token}</strong></p>`;
 
   return await sendEmail({
     to: email,
     subject: "2FA Code",
-    html: html.toString(),
+    html,
   });
 };

@@ -76,6 +76,7 @@ export function ResendVerificationEmail({
 
   const onSubmit = (data: ResendFormValues) => {
     setUserEmail(data.email);
+
     startTransition(async () => {
       try {
         const result = await resendEmail(data.email);
@@ -96,6 +97,9 @@ export function ResendVerificationEmail({
               ? error.message
               : "Failed to resend verification email",
         });
+      } finally {
+        form.reset();
+        otpForm.reset();
       }
     });
   };
@@ -174,14 +178,18 @@ export function ResendVerificationEmail({
                   <FormItem>
                     <FormLabel>Verification Code</FormLabel>
                     <FormControl>
-                      <InputOTP maxLength={6} {...field}>
+                      <InputOTP
+                        maxLength={6}
+                        value={field.value}
+                        onChange={field.onChange}
+                        pattern="^[a-zA-Z0-9]+$"
+                      >
                         <InputOTPGroup>
                           <InputOTPSlot index={0} />
                           <InputOTPSlot index={1} />
                           <InputOTPSlot index={2} />
                         </InputOTPGroup>
                         <InputOTPSeparator />
-
                         <InputOTPGroup>
                           <InputOTPSlot index={3} />
                           <InputOTPSlot index={4} />

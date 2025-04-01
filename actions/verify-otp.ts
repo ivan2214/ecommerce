@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 
 export const verifyOtp = async (email: string, otp: string) => {
   try {
-    // Find the verification token for the email
+    // Buscar el código OTP en la base de datos
     const verificationToken = await prisma.verificationToken.findFirst({
       where: {
         email,
@@ -22,13 +22,13 @@ export const verifyOtp = async (email: string, otp: string) => {
       };
     }
 
-    // Update user as verified
+    // Marcar el usuario como verificado
     await prisma.user.update({
       where: { email },
       data: { emailVerified: new Date() },
     });
 
-    // Delete the used token
+    // Eliminar el código usado
     await prisma.verificationToken.delete({
       where: { id: verificationToken.id },
     });

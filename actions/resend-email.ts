@@ -22,12 +22,12 @@ export const resendEmail = async (email: string) => {
     where: { email },
   });
 
-  // Genera un nuevo token
-  const token = randomUUID();
+  // Genera un código OTP de 6 dígitos
+  const token = Math.floor(100000 + Math.random() * 900000).toString();
   const expires = new Date();
-  expires.setHours(expires.getHours() + 1); // Expira en 1 hora
+  expires.setMinutes(expires.getMinutes() + 10); // Expira en 10 minutos
 
-  // Guarda el nuevo token en la base de datos
+  // Guarda el nuevo código en la base de datos
   await prisma.verificationToken.create({
     data: {
       email,
@@ -36,10 +36,8 @@ export const resendEmail = async (email: string) => {
     },
   });
 
-  // Envía el correo con el nuevo token
-  await sendVerificationEmail(email, token).then((res) => {
-    console.log(res);
-  });
+  // Envía el correo con el código
+  await sendVerificationEmail(email, token);
 
   return { message: "Verification email sent", status: 200 };
 };
