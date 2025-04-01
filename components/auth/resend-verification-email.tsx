@@ -25,7 +25,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { resendVerificationAction } from "@/lib/auth/actions";
 
 const resendSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -55,8 +54,6 @@ export function ResendVerificationEmail({
   const onSubmit = async (data: ResendFormValues) => {
     setIsLoading(true);
     try {
-      await resendVerificationAction(data);
-
       setEmailSent(true);
       toast("Verification email sent", {
         description: "Please check your inbox for the verification link.",

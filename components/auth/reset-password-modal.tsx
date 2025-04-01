@@ -25,7 +25,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-import { resetPasswordAction, verifyResetCodeAction } from "@/lib/auth/actions";
 import { toast } from "sonner";
 
 // Step 1: Request password reset
@@ -86,7 +85,6 @@ export function ResetPasswordModal({
   const onRequestSubmit = async (data: RequestResetFormValues) => {
     setIsLoading(true);
     try {
-      await resetPasswordAction(data.email);
       setEmail(data.email);
       setStep("verify");
       toast("Reset code sent", {
@@ -105,11 +103,6 @@ export function ResetPasswordModal({
   const onVerifySubmit = async (data: VerifyCodeFormValues) => {
     setIsLoading(true);
     try {
-      await verifyResetCodeAction({
-        email,
-        code: data.code,
-        newPassword: data.newPassword,
-      });
       setStep("success");
       toast("Password reset successful", {
         description: "Your password has been reset successfully.",

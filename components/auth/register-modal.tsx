@@ -27,29 +27,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { registerAction } from "@/lib/auth/actions";
-
-const registerSchema = z
-  .object({
-    name: z.string().min(2, { message: "Name must be at least 2 characters" }),
-    email: z.string().email({ message: "Please enter a valid email address" }),
-    password: z
-      .string()
-      .min(8, { message: "Password must be at least 8 characters" }),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
-
-type RegisterFormValues = z.infer<typeof registerSchema>;
+import { FormRegisterSchema } from "@/schemas/auth-schema";
+import { register } from "@/actions/register";
 
 interface RegisterModalProps {
   isOpen: boolean;
   onClose: () => void;
   onLoginClick: () => void;
 }
+
+type RegisterFormValues = z.infer<typeof FormRegisterSchema>;
 
 export function RegisterModal({
   isOpen,
@@ -60,7 +47,7 @@ export function RegisterModal({
   const [verificationSent, setVerificationSent] = useState(false);
 
   const form = useForm<RegisterFormValues>({
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(FormRegisterSchema),
     defaultValues: {
       name: "",
       email: "",
@@ -72,11 +59,7 @@ export function RegisterModal({
   const onSubmit = async (data: RegisterFormValues) => {
     setIsLoading(true);
     try {
-      await registerAction({
-        name: data.name,
-        email: data.email,
-        password: data.password,
-      });
+      await register(data);
 
       setVerificationSent(true);
       toast("Registration successful", {

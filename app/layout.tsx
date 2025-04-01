@@ -4,7 +4,6 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { SessionProvider } from "next-auth/react";
 
-import { AuthProvider } from "@/components/auth/auth-provider";
 import { Navbar } from "@/components/layout/navbar";
 import { ThemeProvider } from "@/components/theme-provider";
 import Footer from "@/components/footer";
@@ -42,14 +41,12 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <SessionProvider>
-            <AuthProvider>
-              <AuthModalsProvider>
-                <Navbar />
-                <main className="flex-1">{children}</main>
-                <Footer />
-                <Toaster />
-              </AuthModalsProvider>
-            </AuthProvider>
+            <AuthModalsProvider>
+              <Navbar />
+              <main className="flex-1">{children}</main>
+              <Footer />
+              <Toaster />
+            </AuthModalsProvider>
           </SessionProvider>
         </ThemeProvider>
       </body>

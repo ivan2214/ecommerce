@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useState } from "react";
 import { LoginModal } from "./login-modal";
 import { RegisterModal } from "./register-modal";
 import { ResetPasswordModal } from "./reset-password-modal";

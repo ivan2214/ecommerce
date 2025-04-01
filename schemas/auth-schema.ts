@@ -17,7 +17,7 @@ export const FormRegisterSchema = z
     confirmPassword: z.string().min(6, {
       message: "Minimum 6 characters required",
     }),
-    fullName: z.string().min(1, {
+    name: z.string().min(1, {
       message: "Name es requerido",
     }),
   })
