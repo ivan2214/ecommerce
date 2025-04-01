@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -25,12 +25,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { ResendSchema } from "@/schemas/auth-schema";
+import { resendEmail } from "@/actions/resend-email";
 
-const resendSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address" }),
-});
-
-type ResendFormValues = z.infer<typeof resendSchema>;
+type ResendFormValues = z.infer<typeof ResendSchema>;
 
 interface ResendVerificationEmailProps {
   isOpen: boolean;
@@ -41,22 +39,20 @@ export function ResendVerificationEmail({
   isOpen,
   onClose,
 }: ResendVerificationEmailProps) {
-  const [isLoading, setIsLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  const [isPending, startTransition] = useTransition(); // ✅ Usamos useTransition
 
   const form = useForm<ResendFormValues>({
-    resolver: zodResolver(resendSchema),
+    resolver: zodResolver(ResendSchema),
     defaultValues: {
       email: "",
     },
   });
 
-  const onSubmit = async (data: ResendFormValues) => {
-    setIsLoading(true);
+  const onSubmit = (data: ResendFormValues) => {
     try {
-      setEmailSent(true);
-      toast("Verification email sent", {
-        description: "Please check your inbox for the verification link.",
+      startTransition(() => {
+        resendEmail(data.email);
       });
     } catch (error) {
       toast.error("Error", {
@@ -66,7 +62,6 @@ export function ResendVerificationEmail({
             : "Failed to resend verification email",
       });
     } finally {
-      setIsLoading(false);
     }
   };
 
@@ -120,7 +115,7 @@ export function ResendVerificationEmail({
                         placeholder="name@example.com"
                         className="pl-10"
                         {...field}
-                        disabled={isLoading}
+                        disabled={isPending}
                       />
                     </div>
                   </FormControl>
@@ -128,8 +123,8 @@ export function ResendVerificationEmail({
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? (
+            <Button type="submit" className="w-full" disabled={isPending}>
+              {isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Please wait

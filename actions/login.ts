@@ -41,7 +41,7 @@ export const login = async (
         verificationToken.token
       );
 
-      return { success: "Correo electrónico de confirmación enviado!" };
+      return { error: "Debes verificar tu correo antes de iniciar sesión." }; // <-- Bloquea el acceso
     }
 
     if (existingUser.isTwoFactorEnabled && existingUser.email) {
@@ -107,6 +107,9 @@ export const login = async (
       password,
       redirectTo: redirect,
     });
+    return {
+      success: "Inicio de sesión exitoso!",
+    };
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {

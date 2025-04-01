@@ -47,3 +47,7 @@ export const NewPasswordSchema = z.object({
     message: "Minimum 6 characters required",
   }),
 });
+
+export const ResendSchema = z.object({
+  email: z.string().email({ message: "Please enter a valid email address" }),
+});

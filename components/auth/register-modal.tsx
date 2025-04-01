@@ -78,7 +78,7 @@ export function RegisterModal({
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     try {
-      await signIn("google", { callbackUrl: window.location.origin });
+      await signIn("google");
     } catch (error) {
       toast("Error", {
         description: "Failed to login with Google",
@@ -90,7 +90,7 @@ export function RegisterModal({
   const handleGithubLogin = async () => {
     setIsLoading(true);
     try {
-      await signIn("github", { callbackUrl: window.location.origin });
+      await signIn("github");
     } catch (error) {
       toast("Error", {
         description: "Failed to login with GitHub",

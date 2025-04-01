@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -28,15 +28,10 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { ResendVerificationEmail } from "./resend-verification-email";
 import { toast } from "sonner";
+import { FormLoginSchema } from "@/schemas/auth-schema";
+import { login } from "@/actions/login";
 
-const loginSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address" }),
-  password: z
-    .string()
-    .min(8, { message: "Password must be at least 8 characters" }),
-});
-
-type LoginFormValues = z.infer<typeof loginSchema>;
+type LoginFormValues = z.infer<typeof FormLoginSchema>;
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -51,78 +46,66 @@ export function LoginModal({
   onRegisterClick,
   onForgotPasswordClick,
 }: LoginModalProps) {
-  const [isLoading, setIsLoading] = useState(false);
   const [showResendVerification, setShowResendVerification] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(FormLoginSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   });
 
-  const onSubmit = async (data: LoginFormValues) => {
-    setIsLoading(true);
-    try {
-      const result = await signIn("credentials", {
-        redirect: false,
-        email: data.email,
-        password: data.password,
-      });
+  const onSubmit = (data: LoginFormValues) => {
+    startTransition(() => {
+      login(data)
+        .then((res) => {
+          if (res?.error) {
+            if (res.error.includes("verificar tu correo")) {
+              setShowResendVerification(true); // Muestra opción para reenviar verificación
+            }
+            toast.error(res.error);
+          }
 
-      if (result?.error) {
-        // Check if the error is about email verification
-        if (result.error.includes("verify your email")) {
-          toast.error("Email not verified", {
-            description: "Please verify your email before logging in.",
+          if (res?.success) {
+            toast.success("Success", {
+              description: "Login successful",
+            });
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          toast.error("Error", {
+            description:
+              error instanceof Error ? error.message : "Failed to login",
           });
-          // Show resend verification option
-          setShowResendVerification(true);
-          return;
-        }
-
-        toast.error(result.error, {
-          description: result.error,
+        })
+        .finally(() => {
+          onClose();
         });
-        return;
-      }
+    });
 
-      toast.success("Login successful", {
-        description: "You have been logged in successfully.",
-      });
-      onClose();
-    } catch (error) {
-      console.error(error);
-      toast.error("Error", {
-        description: error instanceof Error ? error.message : "Failed to login",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    onClose();
   };
 
   const handleGoogleLogin = async () => {
-    setIsLoading(true);
     try {
       await signIn("google");
     } catch (error) {
       toast.error("Error", {
         description: "Failed to login with Google",
       });
-      setIsLoading(false);
     }
   };
 
   const handleGithubLogin = async () => {
-    setIsLoading(true);
     try {
       await signIn("github");
     } catch (error) {
       toast.error("Error", {
         description: "Failed to login with GitHub",
       });
-      setIsLoading(false);
     }
   };
 
@@ -151,7 +134,7 @@ export function LoginModal({
                           placeholder="name@example.com"
                           className="pl-10"
                           {...field}
-                          disabled={isLoading}
+                          disabled={isPending}
                         />
                       </div>
                     </FormControl>
@@ -173,7 +156,7 @@ export function LoginModal({
                           placeholder="••••••••"
                           className="pl-10"
                           {...field}
-                          disabled={isLoading}
+                          disabled={isPending}
                         />
                       </div>
                     </FormControl>
@@ -205,8 +188,8 @@ export function LoginModal({
                   Resend verification
                 </Button>
               </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? (
+              <Button type="submit" className="w-full" disabled={isPending}>
+                {isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Please wait
@@ -233,7 +216,7 @@ export function LoginModal({
             <Button
               variant="outline"
               type="button"
-              disabled={isLoading}
+              disabled={isPending}
               onClick={handleGoogleLogin}
             >
               <svg
@@ -256,7 +239,7 @@ export function LoginModal({
             <Button
               variant="outline"
               type="button"
-              disabled={isLoading}
+              disabled={isPending}
               onClick={handleGithubLogin}
             >
               <Github className="mr-2 h-4 w-4" />

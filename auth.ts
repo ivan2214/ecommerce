@@ -10,17 +10,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   callbacks: {
     async signIn({ user, account }) {
-      // esto ees para que no se pueda loguear con google si no esta verificado el email
+      console.log("Account:", account);
+
       if (account?.provider !== "credentials") return true;
       const existingUser = await getUserById(user.id);
+      console.log("Usuario encontrado:", existingUser);
 
       if (!existingUser?.emailVerified) {
+        console.log("Usuario no verificado");
         return false;
       }
 
       return true;
     },
-    async jwt({ token, user }) {
+    async jwt({ token }) {
       if (!token.sub) return token;
 
       const existingUser = await getUserById(token.sub);

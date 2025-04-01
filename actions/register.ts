@@ -37,6 +37,11 @@ export const register = async (values: z.infer<typeof FormRegisterSchema>) => {
 
   const verificationToken = await generateVerificationToken(email);
 
+  console.log("verificationToken: ", verificationToken);
+  console.log("verificationToken.email: ", verificationToken.email);
+  console.log("verificationToken.token: ", verificationToken.token);
+  console.log("verificationToken.expires: ", verificationToken.expires);
+
   await sendVerificationEmail(verificationToken.email, verificationToken.token);
 
   return { success: "Correo electrónico de confirmación enviado!" };
