@@ -84,11 +84,10 @@ async function main() {
 
   // Create users
   console.log("Creating users...");
-  const hashedPassword = await hash("password123", 10);
+  const hashedPassword = await hash("ivan2214", 10);
 
   const adminUser = await prisma.user.create({
     data: {
-      id: "admin_user_id",
       email: "admin@example.com",
       name: "Admin User",
       roleUser: RoleUser.SUPER_ADMIN,
@@ -98,7 +97,6 @@ async function main() {
 
   const managerUser = await prisma.user.create({
     data: {
-      id: "manager_user_id",
       email: "manager@example.com",
       name: "Product Manager",
       roleUser: RoleUser.PRODUCT_MANAGER,
@@ -113,7 +111,6 @@ async function main() {
 
       return prisma.user.create({
         data: {
-          id: `user_${i}`,
           email: faker.internet.email({ firstName, lastName }),
           name: `${firstName} ${lastName}`,
           roleUser: RoleUser.USER,
