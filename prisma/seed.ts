@@ -1,6 +1,6 @@
 import {
   PrismaClient,
-  Role,
+  RoleUser,
   OrderStatus,
   PaymentMethod,
   Product,
@@ -91,7 +91,7 @@ async function main() {
       id: "admin_user_id",
       email: "admin@example.com",
       name: "Admin User",
-      role: Role.SUPER_ADMIN,
+      roleUser: RoleUser.SUPER_ADMIN,
       hashedPassword,
     },
   });
@@ -101,7 +101,7 @@ async function main() {
       id: "manager_user_id",
       email: "manager@example.com",
       name: "Product Manager",
-      role: Role.PRODUCT_MANAGER,
+      roleUser: RoleUser.PRODUCT_MANAGER,
       hashedPassword,
     },
   });
@@ -116,7 +116,7 @@ async function main() {
           id: `user_${i}`,
           email: faker.internet.email({ firstName, lastName }),
           name: `${firstName} ${lastName}`,
-          role: Role.USER,
+          roleUser: RoleUser.USER,
           hashedPassword,
         },
       });
