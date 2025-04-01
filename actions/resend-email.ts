@@ -37,7 +37,9 @@ export const resendEmail = async (email: string) => {
   });
 
   // Envía el correo con el nuevo token
-  await sendVerificationEmail(email, token);
+  await sendVerificationEmail(email, token).then((res) => {
+    console.log(res);
+  });
 
   return { message: "Verification email sent", status: 200 };
 };
