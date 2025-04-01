@@ -93,6 +93,7 @@ export function LoginModal({
       });
       onClose();
     } catch (error) {
+      console.error(error);
       toast.error("Error", {
         description: error instanceof Error ? error.message : "Failed to login",
       });

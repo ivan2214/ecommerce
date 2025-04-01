@@ -5,17 +5,18 @@ import { useSession } from "next-auth/react";
 import { useAuthModals } from "@/components/auth/auth-modals";
 import { UserProfileButton } from "@/components/auth/user-profile-button";
 import { Button } from "@/components/ui/button";
+import { Package } from "lucide-react";
 
 export function Navbar() {
   const { data: session } = useSession();
   const { openLogin, openRegister, AuthModals } = useAuthModals();
 
   return (
-    <header className="border-b px-4 bg-background">
+    <header className="border-b bg-background">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-6">
           <Link href="/" className="font-bold text-xl">
-            TypeScript Refactor AI
+            Auth System
           </Link>
           <nav className="hidden md:flex gap-6">
             <Link
@@ -31,6 +32,13 @@ export function Navbar() {
                   className="text-sm font-medium transition-colors hover:text-primary"
                 >
                   Profile
+                </Link>
+                <Link
+                  href="/orders"
+                  className="text-sm font-medium transition-colors hover:text-primary flex items-center"
+                >
+                  <Package className="mr-1 h-3 w-3" />
+                  Orders
                 </Link>
                 <Link
                   href="/settings"

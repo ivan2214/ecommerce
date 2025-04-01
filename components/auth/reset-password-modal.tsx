@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-import { resetPasswordAction, verifyResetCodeAction } from "@/actions/auth";
+import { resetPasswordAction, verifyResetCodeAction } from "@/lib/auth/actions";
 import { toast } from "sonner";
 
 // Step 1: Request password reset

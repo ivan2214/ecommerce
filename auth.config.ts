@@ -1,7 +1,13 @@
 import { prisma } from "@/lib/db";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GithubProvider from "next-auth/providers/github";
-import type { NextAuthConfig } from "next-auth";
+import Resend from "next-auth/providers/resend";
+
+import { CredentialsSignin, type NextAuthConfig } from "next-auth";
+
+class InvalidLoginError extends CredentialsSignin {
+  code = "Invalid identifier or password";
+}
 
 export default {
   providers: [
@@ -12,8 +18,11 @@ export default {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
+
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
+        if (!credentials?.email || !credentials?.password) {
+          throw new InvalidLoginError();
+        }
 
         const user = await prisma.user.findUnique({
           where: {
@@ -21,16 +30,12 @@ export default {
           },
         });
 
-        if (!user) return null;
+        if (!user) {
+          throw new InvalidLoginError();
+        }
 
         if (user && user.hashedPassword === credentials.password) {
-          return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            roleUser: user.roleUser,
-            tokens: user.tokens,
-          };
+          return user;
         }
 
         return null;

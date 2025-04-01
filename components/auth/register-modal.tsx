@@ -27,6 +27,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
+import { registerAction } from "@/lib/auth/actions";
 
 const registerSchema = z
   .object({
@@ -71,20 +72,11 @@ export function RegisterModal({
   const onSubmit = async (data: RegisterFormValues) => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: data.name,
-          email: data.email,
-          password: data.password,
-        }),
+      await registerAction({
+        name: data.name,
+        email: data.email,
+        password: data.password,
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Registration failed");
-      }
 
       setVerificationSent(true);
       toast("Registration successful", {

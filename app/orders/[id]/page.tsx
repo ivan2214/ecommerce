@@ -14,17 +14,17 @@ export default async function OrderDetailsPage({
 }: {
   params: { id: string };
 }) {
-  const { user } = await currentUser();
+  /* const { user } = await currentUser();
 
   if (!user) {
     redirect("/sign-in");
-  }
+  } */
 
   // Get order details
   const order = await prisma.order.findUnique({
     where: {
       id: params.id,
-      userId: user.id,
+      userId: "user_0",
     },
     include: {
       orderItems: {
