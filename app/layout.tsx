@@ -3,11 +3,12 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { SessionProvider } from "next-auth/react";
-import { AuthModals } from "@/components/auth/auth-modals";
+
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { Navbar } from "@/components/layout/navbar";
 import { ThemeProvider } from "@/components/theme-provider";
 import Footer from "@/components/footer";
+import { AuthModalsProvider } from "@/components/auth/auth-modals-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,11 +43,12 @@ export default function RootLayout({
         >
           <SessionProvider>
             <AuthProvider>
-              <Navbar />
-              <main className="flex-1">{children}</main>
-              <Footer />
-              <Toaster />
-              <AuthModals />
+              <AuthModalsProvider>
+                <Navbar />
+                <main className="flex-1">{children}</main>
+                <Footer />
+                <Toaster />
+              </AuthModalsProvider>
             </AuthProvider>
           </SessionProvider>
         </ThemeProvider>

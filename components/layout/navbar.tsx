@@ -2,14 +2,16 @@
 
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { useAuthModals } from "@/components/auth/auth-modals";
+
 import { UserProfileButton } from "@/components/auth/user-profile-button";
 import { Button } from "@/components/ui/button";
 import { Package } from "lucide-react";
+import { useAuthModals } from "@/hooks/useAuthModals";
 
 export function Navbar() {
   const { data: session } = useSession();
-  const { openLogin, openRegister, AuthModals } = useAuthModals();
+
+  const { openLogin, openRegister } = useAuthModals();
 
   return (
     <header className="border-b bg-background">
@@ -20,10 +22,16 @@ export function Navbar() {
           </Link>
           <nav className="hidden md:flex gap-6">
             <Link
-              href="/"
+              href="/products"
               className="text-sm font-medium transition-colors hover:text-primary"
             >
-              Home
+              Products
+            </Link>
+            <Link
+              href="/categories"
+              className="text-sm font-medium transition-colors hover:text-primary"
+            >
+              Categories
             </Link>
             {session && (
               <>
@@ -64,9 +72,6 @@ export function Navbar() {
           )}
         </div>
       </div>
-
-      {/* Render the auth modals */}
-      <AuthModals />
     </header>
   );
 }
