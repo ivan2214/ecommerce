@@ -22,14 +22,20 @@ export default {
 
           const user = await getUserByEmail(email);
 
-          if (!user || !user.hashedPassword) return null;
+          if (!user || !user.hashedPassword) {
+            throw new InvalidLoginError();
+          }
 
           const passwordMatch = await bcrypt.compare(
             password,
             user.hashedPassword
           );
 
-          if (passwordMatch) return user;
+          if (!passwordMatch) {
+            throw new InvalidLoginError();
+          }
+
+          return user;
         }
 
         return null;

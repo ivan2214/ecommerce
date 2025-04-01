@@ -100,7 +100,7 @@ export const login = async (
     existingUser.roleUser === "SUPER_ADMIN" ? "/admin" : DEFAULT_LOGIN_REDIRECT;
 
   try {
-    await signIn("credentials", {
+    signIn("credentials", {
       email,
       password,
       redirectTo: redirect,
