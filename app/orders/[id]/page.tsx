@@ -7,7 +7,7 @@ import { prisma } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { currentUser } from "@/actions/user";
+import { currentUser } from "@/lib/current-user";
 
 export default async function OrderDetailsPage({
   params,

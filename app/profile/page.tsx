@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { UserProfile } from "@/components/user-profile";
 import { AddressForm } from "@/components/address-form";
-import { currentUser } from "@/actions/user";
+import { currentUser } from "@/lib/current-user";
 
 export default async function ProfilePage() {
   const { user } = await currentUser();

@@ -12,7 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AddToCartButton } from "@/components/add-to-cart-button";
 import { FavoriteButton } from "@/components/favorite-button";
 import { ProductQuantity } from "@/components/product-quantity";
-import { currentUser } from "@/actions/user";
+import { currentUser } from "@/lib/current-user";
 
 export default async function ProductPage({
   params,

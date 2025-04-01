@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { currentUser } from "@/actions/user";
+import { currentUser } from "@/lib/current-user";
 
 export default async function SettingsPage() {
   const { user } = await currentUser();

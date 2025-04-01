@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
-import { currentUser } from "@/actions/user";
+import { currentUser } from "@/lib/current-user";
 
 // Product actions
 export async function createProduct(formData: FormData) {

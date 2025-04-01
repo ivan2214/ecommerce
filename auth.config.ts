@@ -1,9 +1,10 @@
-import { prisma } from "@/lib/db";
-import CredentialsProvider from "next-auth/providers/credentials";
+import Credentials from "next-auth/providers/credentials";
 import GithubProvider from "next-auth/providers/github";
-import Resend from "next-auth/providers/resend";
 
 import { CredentialsSignin, type NextAuthConfig } from "next-auth";
+import bcrypt from "bcryptjs";
+import { FormLoginSchema } from "@/schemas/auth-schema";
+import { getUserByEmail } from "@/data/user";
 
 class InvalidLoginError extends CredentialsSignin {
   code = "Invalid identifier or password";
@@ -12,30 +13,23 @@ class InvalidLoginError extends CredentialsSignin {
 export default {
   providers: [
     GithubProvider,
-    CredentialsProvider({
-      name: "Credentials",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
-      },
-
+    Credentials({
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new InvalidLoginError();
-        }
+        const validateFields = FormLoginSchema.safeParse(credentials);
 
-        const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email as string,
-          },
-        });
+        if (validateFields.success) {
+          const { email, password } = validateFields.data;
 
-        if (!user) {
-          throw new InvalidLoginError();
-        }
+          const user = await getUserByEmail(email);
 
-        if (user && user.hashedPassword === credentials.password) {
-          return user;
+          if (!user || !user.hashedPassword) return null;
+
+          const passwordMatch = await bcrypt.compare(
+            password,
+            user.hashedPassword
+          );
+
+          if (passwordMatch) return user;
         }
 
         return null;

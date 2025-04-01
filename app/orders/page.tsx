@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getUserOrders } from "@/lib/orders/actions";
+import { getUserOrders } from "@/data/orders";
 
 import { getSession } from "next-auth/react";
 import { OrderStatus } from "@prisma/client";

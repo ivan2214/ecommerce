@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import { currentUser } from "@/actions/user";
+import { currentUser } from "@/lib/current-user";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

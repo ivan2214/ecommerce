@@ -8,7 +8,7 @@ import { Heart, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { FavoriteButton } from "@/components/favorite-button";
-import { currentUser } from "@/actions/user";
+import { currentUser } from "@/lib/current-user";
 
 export default async function FavoritesPage() {
   const { user } = await currentUser();
