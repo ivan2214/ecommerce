@@ -97,9 +97,7 @@ export const login = async (
   }
 
   const redirect =
-    existingUser.roleUser === "SUPER_ADMIN"
-      ? "/admin"
-      : callbackUrl || DEFAULT_LOGIN_REDIRECT;
+    existingUser.roleUser === "SUPER_ADMIN" ? "/admin" : DEFAULT_LOGIN_REDIRECT;
 
   try {
     await signIn("credentials", {

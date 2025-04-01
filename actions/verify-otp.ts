@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/db";
 
-export const verifyOtp = async (email: string, otp: string) => {
+export const verifyOtp = async (email: string, otp?: string) => {
   try {
     // Buscar el código OTP en la base de datos
     const verificationToken = await prisma.verificationToken.findFirst({

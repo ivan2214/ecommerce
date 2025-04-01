@@ -21,6 +21,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return false;
       }
 
+      console.log("Usuario verificado");
+
       return true;
     },
     async jwt({ token }) {
