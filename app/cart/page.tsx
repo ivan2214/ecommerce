@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { Trash2 } from "lucide-react";
@@ -15,17 +15,18 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { CartActions } from "@/components/cart-actions";
+import { currentUser } from "@/actions/user";
 
 export default async function CartPage() {
-  const { userId } = await auth();
+  const { user } = await currentUser();
 
-  if (!userId) {
+  if (!user) {
     redirect("/sign-in");
   }
 
   // Get user's cart
   const cart = await prisma.cart.findUnique({
-    where: { userId },
+    where: { userId: user.id },
     include: {
       items: {
         include: {
@@ -59,7 +60,6 @@ export default async function CartPage() {
                   <img
                     src={item.product.images[0] || "/placeholder.svg"}
                     alt={item.product.name}
-                    fill
                     className="object-cover"
                   />
                 </div>

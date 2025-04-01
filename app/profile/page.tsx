@@ -1,20 +1,26 @@
-import { currentUser } from "@clerk/nextjs/server"
-import { redirect } from "next/navigation"
-import { prisma } from "@/lib/db"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
-import { UserProfile } from "@/components/user-profile"
-import { AddressForm } from "@/components/address-form"
+import { redirect } from "next/navigation";
+import { prisma } from "@/lib/db";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { UserProfile } from "@/components/user-profile";
+import { AddressForm } from "@/components/address-form";
+import { currentUser } from "@/actions/user";
 
 export default async function ProfilePage() {
-  const user = await currentUser()
+  const { user } = await currentUser();
 
   if (!user) {
-    redirect("/sign-in")
+    redirect("/sign-in");
   }
 
   // Get user data from database
@@ -27,16 +33,17 @@ export default async function ProfilePage() {
         take: 5,
       },
     },
-  })
+  });
 
   if (!dbUser) {
-    // Handle case where user exists in Clerk but not in database
     return (
       <div className="container max-w-6xl py-8">
         <Card>
           <CardHeader>
             <CardTitle>Profile Setup</CardTitle>
-            <CardDescription>Complete your profile to start shopping</CardDescription>
+            <CardDescription>
+              Complete your profile to start shopping
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <p>Please complete your profile setup to continue.</p>
@@ -44,7 +51,7 @@ export default async function ProfilePage() {
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -63,7 +70,9 @@ export default async function ProfilePage() {
           <Card>
             <CardHeader>
               <CardTitle>Profile Information</CardTitle>
-              <CardDescription>Update your personal information</CardDescription>
+              <CardDescription>
+                Update your personal information
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <UserProfile />
@@ -88,7 +97,9 @@ export default async function ProfilePage() {
                           <p className="text-sm text-muted-foreground">
                             {address.city}, {address.state} {address.postalCode}
                           </p>
-                          <p className="text-sm text-muted-foreground">{address.country}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {address.country}
+                          </p>
                         </div>
                         <div className="flex items-center gap-2">
                           {address.isDefault && (
@@ -110,7 +121,9 @@ export default async function ProfilePage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-muted-foreground">You have no saved addresses.</p>
+                <p className="text-muted-foreground">
+                  You have no saved addresses.
+                </p>
               )}
 
               <Separator />
@@ -127,7 +140,9 @@ export default async function ProfilePage() {
           <Card>
             <CardHeader>
               <CardTitle>Order History</CardTitle>
-              <CardDescription>View your recent orders and their status</CardDescription>
+              <CardDescription>
+                View your recent orders and their status
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {dbUser.orders.length > 0 ? (
@@ -136,22 +151,26 @@ export default async function ProfilePage() {
                     <div key={order.id} className="rounded-lg border p-4">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div>
-                          <p className="font-medium">Order #{order.id.substring(0, 8)}</p>
+                          <p className="font-medium">
+                            Order #{order.id.substring(0, 8)}
+                          </p>
                           <p className="text-sm text-muted-foreground">
                             {new Date(order.createdAt).toLocaleDateString()}
                           </p>
                         </div>
                         <div className="flex flex-col sm:items-end gap-1">
-                          <p className="font-medium">${order.total.toFixed(2)}</p>
+                          <p className="font-medium">
+                            ${order.total.toFixed(2)}
+                          </p>
                           <span
                             className={`rounded-full px-2 py-1 text-xs font-medium ${
                               order.status === "DELIVERED"
                                 ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
                                 : order.status === "PROCESSING"
-                                  ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
-                                  : order.status === "SHIPPED"
-                                    ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
-                                    : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300"
+                                ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
+                                : order.status === "SHIPPED"
+                                ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
+                                : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300"
                             }`}
                           >
                             {order.status}
@@ -183,7 +202,9 @@ export default async function ProfilePage() {
           <Card>
             <CardHeader>
               <CardTitle>Security Settings</CardTitle>
-              <CardDescription>Manage your security preferences</CardDescription>
+              <CardDescription>
+                Manage your security preferences
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
@@ -198,7 +219,9 @@ export default async function ProfilePage() {
                     <Input id="new-password" type="password" />
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="confirm-password">Confirm New Password</Label>
+                    <Label htmlFor="confirm-password">
+                      Confirm New Password
+                    </Label>
                     <Input id="confirm-password" type="password" />
                   </div>
                   <Button className="w-full sm:w-auto">Update Password</Button>
@@ -208,9 +231,12 @@ export default async function ProfilePage() {
               <Separator />
 
               <div className="space-y-4">
-                <h3 className="text-lg font-medium">Two-Factor Authentication</h3>
+                <h3 className="text-lg font-medium">
+                  Two-Factor Authentication
+                </h3>
                 <p className="text-sm text-muted-foreground">
-                  Add an extra layer of security to your account by enabling two-factor authentication.
+                  Add an extra layer of security to your account by enabling
+                  two-factor authentication.
                 </p>
                 <Button variant="outline">Enable 2FA</Button>
               </div>
@@ -220,7 +246,8 @@ export default async function ProfilePage() {
               <div className="space-y-4">
                 <h3 className="text-lg font-medium">Delete Account</h3>
                 <p className="text-sm text-muted-foreground">
-                  Permanently delete your account and all associated data. This action cannot be undone.
+                  Permanently delete your account and all associated data. This
+                  action cannot be undone.
                 </p>
                 <Button variant="destructive">Delete Account</Button>
               </div>
@@ -229,6 +256,5 @@ export default async function ProfilePage() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }
-

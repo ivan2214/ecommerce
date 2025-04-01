@@ -1,20 +1,18 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { auth, currentUser } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db";
-import type { Role } from "@prisma/client";
+import { currentUser } from "@/actions/user";
 
 // Product actions
 export async function createProduct(formData: FormData) {
-  const { userId } = await auth();
-  const user = await currentUser();
+  const { user } = await currentUser();
 
-  if (!userId || !user) {
+  if (!user) {
     throw new Error("Unauthorized");
   }
 
-  const role = user.publicMetadata.role as Role;
+  const role = user.roleUser;
 
   if (role !== "SUPER_ADMIN" && role !== "PRODUCT_MANAGER") {
     throw new Error("Unauthorized");
@@ -58,14 +56,13 @@ export async function createProduct(formData: FormData) {
 }
 
 export async function updateProduct(productId: string, formData: FormData) {
-  const { userId } = await auth();
-  const user = await currentUser();
+  const { user } = await currentUser();
 
-  if (!userId || !user) {
+  if (!user) {
     throw new Error("Unauthorized");
   }
 
-  const role = user.publicMetadata.role as Role;
+  const role = user.roleUser;
 
   if (role !== "SUPER_ADMIN" && role !== "PRODUCT_MANAGER") {
     throw new Error("Unauthorized");
@@ -99,14 +96,13 @@ export async function updateProduct(productId: string, formData: FormData) {
 }
 
 export async function deleteProduct(productId: string) {
-  const { userId } = await auth();
-  const user = await currentUser();
+  const { user } = await currentUser();
 
-  if (!userId || !user) {
+  if (!user) {
     throw new Error("Unauthorized");
   }
 
-  const role = user.publicMetadata.role as Role;
+  const role = user.roleUser;
 
   if (role !== "SUPER_ADMIN" && role !== "PRODUCT_MANAGER") {
     throw new Error("Unauthorized");
@@ -124,9 +120,9 @@ export async function deleteProduct(productId: string) {
 
 // Cart actions
 export async function addToCart(productId: string, quantity = 1) {
-  const { userId } = await auth();
+  const { user } = await currentUser();
 
-  if (!userId) {
+  if (!user) {
     throw new Error("You must be signed in to add items to your cart");
   }
 
@@ -145,7 +141,7 @@ export async function addToCart(productId: string, quantity = 1) {
 
   // Check if user has a cart
   let cart = await prisma.cart.findUnique({
-    where: { userId },
+    where: { userId: user.id },
     include: { items: true },
   });
 
@@ -153,7 +149,7 @@ export async function addToCart(productId: string, quantity = 1) {
   if (!cart) {
     cart = await prisma.cart.create({
       data: {
-        userId,
+        userId: user.id,
       },
       include: { items: true },
     });
@@ -195,9 +191,9 @@ export async function updateCartItemQuantity(
   cartItemId: string,
   quantity: number
 ) {
-  const { userId } = await auth();
+  const { user } = await currentUser();
 
-  if (!userId) {
+  if (!user) {
     throw new Error("Unauthorized");
   }
 
@@ -210,7 +206,7 @@ export async function updateCartItemQuantity(
     },
   });
 
-  if (!cartItem || cartItem.cart.userId !== userId) {
+  if (!cartItem || cartItem.cart.userId !== user.id) {
     throw new Error("Unauthorized");
   }
 
@@ -238,9 +234,9 @@ export async function updateCartItemQuantity(
 }
 
 export async function removeFromCart(cartItemId: string) {
-  const { userId } = await auth();
+  const { user } = await currentUser();
 
-  if (!userId) {
+  if (!user) {
     throw new Error("Unauthorized");
   }
 
@@ -250,7 +246,7 @@ export async function removeFromCart(cartItemId: string) {
     include: { cart: true },
   });
 
-  if (!cartItem || cartItem.cart.userId !== userId) {
+  if (!cartItem || cartItem.cart.userId !== user.id) {
     throw new Error("Unauthorized");
   }
 
@@ -265,15 +261,15 @@ export async function removeFromCart(cartItemId: string) {
 
 // Order actions
 export async function createOrder(formData: FormData) {
-  const { userId } = await auth();
+  const { user } = await currentUser();
 
-  if (!userId) {
+  if (!user) {
     throw new Error("You must be signed in to place an order");
   }
 
   // Get user's cart
   const cart = await prisma.cart.findUnique({
-    where: { userId },
+    where: { userId: user.id },
     include: {
       items: {
         include: {
@@ -309,7 +305,7 @@ export async function createOrder(formData: FormData) {
     // Create order
     const newOrder = await tx.order.create({
       data: {
-        userId,
+        userId: user.id,
         total,
         shippingAddress,
         paymentMethod: paymentMethod as any,
@@ -351,14 +347,14 @@ export async function createOrder(formData: FormData) {
 
 // Favorite actions
 export async function toggleFavorite(productId: string) {
-  const { userId } = await auth();
+  const { user } = await currentUser();
 
-  if (!userId) {
+  if (!user) {
     throw new Error("You must be signed in to add favorites");
   }
 
   const existingUser = await prisma.user.findUnique({
-    where: { id: userId },
+    where: { id: user.id },
   });
 
   if (!existingUser) {
@@ -382,7 +378,7 @@ export async function toggleFavorite(productId: string) {
   // Check if product is already in favorites
   const existingFavorite = await prisma.favorite.findFirst({
     where: {
-      userId,
+      userId: user.id,
       productId,
     },
   });
@@ -396,7 +392,7 @@ export async function toggleFavorite(productId: string) {
     // Add to favorites
     await prisma.favorite.create({
       data: {
-        userId,
+        userId: user.id,
         productId,
       },
     });
@@ -410,9 +406,9 @@ export async function toggleFavorite(productId: string) {
 
 // Review actions
 export async function createReview(productId: string, formData: FormData) {
-  const { userId } = await auth();
+  const { user } = await currentUser();
 
-  if (!userId) {
+  if (!user) {
     throw new Error("You must be signed in to leave a review");
   }
 
@@ -426,7 +422,7 @@ export async function createReview(productId: string, formData: FormData) {
   // Check if user has already reviewed this product
   const existingReview = await prisma.review.findFirst({
     where: {
-      userId,
+      userId: user.id,
       productId,
     },
   });
@@ -448,7 +444,7 @@ export async function createReview(productId: string, formData: FormData) {
   // Create new review
   const review = await prisma.review.create({
     data: {
-      userId,
+      userId: user.id,
       productId,
       rating,
       comment,

@@ -6,11 +6,12 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider     = "postgresql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
-enum Role {
+enum RoleUser {
   USER
   PRODUCT_MANAGER
   SUPER_ADMIN
@@ -31,151 +32,245 @@ enum PaymentMethod {
 }
 
 model User {
-  id           String     @id
-  email        String     @unique
-  name         String?
-  role         Role       @default(USER)
-  passwordHash String?
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  clerkUserId  String?    @unique
-  imageUrl     String?
-  cart         Cart?
-  orders       Order[]
-  reviews      Review[]
-  favorites    Favorite[]
-  addresses    Address[]
+  id             String    @id
+  name           String?
+  email          String    @unique
+  hashedPassword String?
+  emailVerified  DateTime?
+  image          String?
+
+  cart Cart?
+
+  roleUser RoleUser @default(USER)
+
+  orders    Order[]
+  reviews   Review[]
+  favorites Favorite[]
+  addresses Address[]
+  accounts  Account[]
+  sessions  Session[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  sessionToken String @unique
+
+  expires DateTime
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
 }
 
 model Category {
-  id          String    @id @default(cuid())
+  id   String @id @default(cuid())
+  slug String @unique
+
   name        String
-  slug        String    @unique
   description String?
   image       String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  products    Product[]
+
+  products Product[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Brand {
-  id          String    @id @default(cuid())
+  id   String @id @default(cuid())
+  slug String @unique
+
   name        String
-  slug        String    @unique
   description String?
   image       String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  products    Product[]
+
+  products Product[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Product {
-  id            String      @id @default(cuid())
+  id          String  @id @default(cuid())
+  slug        String? @unique
+  discount    Float   @default(0)
+  stock       Int     @default(0)
+  featured    Boolean @default(false)
+  rating      Float   @default(0)
+  hasDiscount Boolean @default(false)
+
   name          String
-  slug          String?     @unique
   description   String
   price         Float
   originalPrice Float
-  discount      Float       @default(0)
-  stock         Int         @default(0)
   images        String[]
-  featured      Boolean     @default(false)
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  category      Category    @relation(fields: [categoryId], references: [id])
-  categoryId    String
-  cartItems     CartItem[]
-  orderItems    OrderItem[]
-  reviews       Review[]
-  favorites     Favorite[]
-  rating        Float       @default(0)
-  hasDiscount   Boolean     @default(false)
-  brand         Brand?      @relation(fields: [brandId], references: [id])
-  brandId       String?
+
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId String
+  brand      Brand?   @relation(fields: [brandId], references: [id])
+  brandId    String?
+
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+  reviews    Review[]
+  favorites  Favorite[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([brandId])
+  @@index([categoryId])
 }
 
 model Cart {
-  id        String     @id @default(cuid())
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String     @unique
-  items     CartItem[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  id String @id @default(cuid())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @unique
+
+  items CartItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model CartItem {
-  id        String   @id @default(cuid())
-  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  id       String @id @default(cuid())
+  quantity Int    @default(1)
+
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
   cartId    String
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId String
-  quantity  Int      @default(1)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([cartId, productId])
+  @@index([productId])
 }
 
 model Order {
-  id              String        @id @default(cuid())
-  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId          String
+  id String @id @default(cuid())
+
   total           Float
-  status          OrderStatus   @default(PROCESSING)
-  paymentMethod   PaymentMethod
   shippingAddress String
-  orderItems      OrderItem[]
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+
+  status        OrderStatus   @default(PROCESSING)
+  paymentMethod PaymentMethod
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  orderItems OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
 
 model OrderItem {
-  id        String   @id @default(cuid())
-  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  id String @id @default(cuid())
+
+  quantity Int
+  price    Float
+
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId   String
-  product   Product  @relation(fields: [productId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
   productId String
-  quantity  Int
-  price     Float
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([productId])
+  @@index([orderId])
 }
 
 model Review {
-  id        String   @id @default(cuid())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id String @id @default(cuid())
+
+  rating  Int
+  comment String?
+
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId String
-  rating    Int
-  comment   String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([userId, productId])
+  @@index([productId])
 }
 
 model Favorite {
-  id        String   @id @default(cuid())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id String @id @default(cuid())
+
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId String
+
   createdAt DateTime @default(now())
 
   @@unique([userId, productId])
+  @@index([productId])
 }
 
 model Address {
-  id         String   @id @default(cuid())
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId     String
+  id        String  @id @default(cuid())
+  isDefault Boolean @default(false)
+
   street     String
   city       String
   state      String
   postalCode String
   country    String
-  isDefault  Boolean  @default(false)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }

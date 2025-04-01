@@ -1,33 +1,40 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextRequest, NextResponse } from "next/server";
+import authConfig from "./auth.config";
+import NextAuth from "next-auth";
 
-const isProtectedAdminRoute = createRouteMatcher(["/admin(.*)"]);
-const isPublicRoute = createRouteMatcher(["/api/webhooks(.*)"]);
+// Use only one of the two middleware options below
+// 1. Use middleware directly
+// export const { auth: middleware } = NextAuth(authConfig)
 
-export default clerkMiddleware(async (auth, req) => {
-  // Restringir las rutas de administración a usuarios con permisos específicos
-  // Por ejemplo, solo permitir a los administradores de la organización
-  // que accedan a las rutas de administración
+// 2. Wrapped middleware option
+const { auth } = NextAuth(authConfig);
+export default auth(async function middleware(request: NextRequest) {
+  // Define protected routes that require authentication
+  const protectedRoutes = ["/dashboard", "/profile", "/settings"];
 
-  // Skip authentication for public routes
-  if (isPublicRoute(req)) {
-    return;
+  // Check if the current path is a protected route
+  const isProtectedRoute = protectedRoutes.some((route) =>
+    request.nextUrl.pathname.startsWith(route)
+  );
+
+  // If trying to access a protected route without being authenticated
+  if (isProtectedRoute) {
+    // Redirect to the login page
+    const url = new URL("/", request.url);
+    url.searchParams.set("callbackUrl", request.nextUrl.pathname);
+    return NextResponse.redirect(url);
   }
 
-  if (isProtectedAdminRoute(req)) {
-    await auth.protect((has) => {
-      return (
-        has({ permission: "org:admin:example1" }) ||
-        has({ permission: "org:admin:example2" })
-      );
-    });
+  // If trying to access auth pages while already authenticated
+  const authRoutes = ["/login", "/register", "/reset-password"];
+  const isAuthRoute = authRoutes.some((route) =>
+    request.nextUrl.pathname.startsWith(route)
+  );
+
+  if (isAuthRoute) {
+    // Redirect to the dashboard
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
+
+  return NextResponse.next();
 });
-
-export const config = {
-  matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    // Always run for API routes
-    "/(api|trpc)(.*)",
-  ],
-};

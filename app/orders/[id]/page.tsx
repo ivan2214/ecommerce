@@ -1,21 +1,22 @@
 import Link from "next/link";
 import Image from "next/image";
 import { notFound, redirect } from "next/navigation";
-import { auth } from "@clerk/nextjs/server";
+
 import { prisma } from "@/lib/db";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { currentUser } from "@/actions/user";
 
 export default async function OrderDetailsPage({
   params,
 }: {
   params: { id: string };
 }) {
-  const { userId } = await auth();
+  const { user } = await currentUser();
 
-  if (!userId) {
+  if (!user) {
     redirect("/sign-in");
   }
 
@@ -23,7 +24,7 @@ export default async function OrderDetailsPage({
   const order = await prisma.order.findUnique({
     where: {
       id: params.id,
-      userId, // Ensure the order belongs to the current user
+      userId: user.id,
     },
     include: {
       orderItems: {
@@ -73,7 +74,6 @@ export default async function OrderDetailsPage({
                       <img
                         src={item.product.images[0] || "/placeholder.svg"}
                         alt={item.product.name}
-                        fill
                         className="object-cover"
                       />
                     </div>

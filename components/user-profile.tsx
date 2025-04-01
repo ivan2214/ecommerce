@@ -3,20 +3,21 @@
 import type React from "react";
 
 import { useState } from "react";
-import { useUser } from "@clerk/nextjs";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { useSession } from "next-auth/react";
 
 export function UserProfile() {
-  const { user, isLoaded } = useUser();
+  const { data } = useSession();
+  const user = data?.user;
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  const [firstName, setFirstName] = useState(user?.firstName || "");
-  const [lastName, setLastName] = useState(user?.lastName || "");
-  const [email, setEmail] = useState(
-    user?.primaryEmailAddress?.emailAddress || ""
-  );
+  const [name, setName] = useState(user?.name || "");
+
+  const [email, setEmail] = useState(user?.email || "");
   const [isUpdating, setIsUpdating] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,11 +28,6 @@ export function UserProfile() {
     setIsUpdating(true);
 
     try {
-      await user.update({
-        firstName,
-        lastName,
-      });
-
       toast("Profile updated", {
         description: "Your profile information has been updated successfully.",
       });
@@ -55,20 +51,12 @@ export function UserProfile() {
         <Label htmlFor="first-name">First Name</Label>
         <Input
           id="first-name"
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
           required
         />
       </div>
-      <div className="grid gap-2">
-        <Label htmlFor="last-name">Last Name</Label>
-        <Input
-          id="last-name"
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
-          required
-        />
-      </div>
+
       <div className="grid gap-2">
         <Label htmlFor="email">Email</Label>
         <Input

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { Heart, ShoppingCart } from "lucide-react";
@@ -8,17 +8,18 @@ import { Heart, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { FavoriteButton } from "@/components/favorite-button";
+import { currentUser } from "@/actions/user";
 
 export default async function FavoritesPage() {
-  const { userId } = await auth();
+  const { user } = await currentUser();
 
-  if (!userId) {
+  if (!user) {
     redirect("/sign-in");
   }
 
   // Get user's favorites
   const favorites = await prisma.favorite.findMany({
-    where: { userId },
+    where: { userId: user.id },
     include: {
       product: {
         include: {
@@ -59,7 +60,6 @@ export default async function FavoritesPage() {
                     <img
                       src={product.images[0] || "/placeholder.svg"}
                       alt={product.name}
-                      fill
                       className="object-cover transition-transform group-hover:scale-105"
                     />
                   </div>

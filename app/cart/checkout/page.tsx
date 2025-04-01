@@ -1,5 +1,5 @@
-import { auth } from "@clerk/nextjs/server";
-import { currentUser } from "@clerk/nextjs/server";
+import { auth } from "@/auth";
+import { currentUser } from "@/actions/user";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,16 +7,15 @@ import { Separator } from "@/components/ui/separator";
 import { CheckoutForm } from "@/components/checkout-form";
 
 export default async function CheckoutPage() {
-  const { userId } = await auth();
-  const user = await currentUser();
+  const { user } = await currentUser();
 
-  if (!userId || !user) {
+  if (!user) {
     redirect("/sign-in");
   }
 
   // Get user's cart
   const cart = await prisma.cart.findUnique({
-    where: { userId },
+    where: { userId: user.id },
     include: {
       items: {
         include: {
@@ -32,7 +31,7 @@ export default async function CheckoutPage() {
 
   // Get user's addresses
   const addresses = await prisma.address.findMany({
-    where: { userId },
+    where: { userId: user.id },
     orderBy: { isDefault: "desc" },
   });
 

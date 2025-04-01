@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { auth } from "@clerk/nextjs/server";
 import { Share2, Star, Truck } from "lucide-react";
 
 import { prisma } from "@/lib/db";
@@ -13,13 +12,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AddToCartButton } from "@/components/add-to-cart-button";
 import { FavoriteButton } from "@/components/favorite-button";
 import { ProductQuantity } from "@/components/product-quantity";
+import { currentUser } from "@/actions/user";
 
 export default async function ProductPage({
   params,
 }: {
   params: { id: string };
 }) {
-  const { userId } = await auth();
+  const { user } = await currentUser();
 
   // Get product with category, reviews and check if it's favorited
   const product = await prisma.product.findUnique({
@@ -48,10 +48,10 @@ export default async function ProductPage({
 
   // Check if product is in user's favorites
   let isFavorited = false;
-  if (userId) {
+  if (user) {
     const favorite = await prisma.favorite.findFirst({
       where: {
-        userId,
+        userId: user.id,
         productId: product.id,
       },
     });

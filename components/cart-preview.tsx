@@ -56,7 +56,6 @@ export default function CartPreview({ onCheckout }: CartPreviewProps) {
                     <img
                       src={item.image || "/placeholder.svg"}
                       alt={item.name}
-                      fill
                       className="object-cover"
                     />
                   </div>

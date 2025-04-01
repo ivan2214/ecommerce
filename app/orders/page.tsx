@@ -1,22 +1,22 @@
 import Link from "next/link";
-import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { currentUser } from "@/actions/user";
 
 export default async function OrdersPage() {
-  const { userId } = await auth();
+  const { user } = await currentUser();
 
-  if (!userId) {
+  if (!user) {
     redirect("/sign-in");
   }
 
   // Get user's orders
   const orders = await prisma.order.findMany({
-    where: { userId },
+    where: { userId: user.id },
     orderBy: { createdAt: "desc" },
     include: {
       orderItems: {
