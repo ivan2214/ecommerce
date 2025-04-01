@@ -17,7 +17,7 @@ export default async function OrderDetailsPage({
   /* const { user } = await currentUser();
 
   if (!user) {
-    redirect("/sign-in");
+    redirect("/not-found");
   } */
 
   // Get order details

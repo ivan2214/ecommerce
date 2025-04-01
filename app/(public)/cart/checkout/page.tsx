@@ -10,7 +10,7 @@ export default async function CheckoutPage() {
   const { user } = await currentUser();
 
   if (!user) {
-    redirect("/sign-in");
+    redirect("/not-found");
   }
 
   // Get user's cart

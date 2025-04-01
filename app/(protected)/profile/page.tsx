@@ -20,7 +20,7 @@ export default async function ProfilePage() {
   const { user } = await currentUser();
 
   if (!user) {
-    redirect("/sign-in");
+    redirect("/not-found");
   }
 
   // Get user data from database

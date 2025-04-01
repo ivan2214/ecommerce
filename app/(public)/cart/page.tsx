@@ -21,7 +21,7 @@ export default async function CartPage() {
   const { user } = await currentUser();
 
   if (!user) {
-    redirect("/sign-in");
+    redirect("/not-found");
   }
 
   // Get user's cart
